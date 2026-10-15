@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { EngineeringLab } from "./engineering-lab";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -232,62 +233,10 @@ export function AboutSection() {
           </div>
         </div>
 
-        {/* Right Architectural Portrait & Craft Frame (5 cols) */}
+        {/* Right Column: Interactive Engineering Telemetry & Computer Vision Lab (5 cols) */}
         <div className="lg:col-span-5 flex flex-col items-center lg:items-end">
-          <div
-            ref={portraitRef}
-            className="about-portrait-frame w-full max-w-md border border-[var(--hairline-strong)] p-3 bg-[var(--paper)] shadow-[12px_16px_36px_rgba(0,0,0,0.06)] relative will-change-transform"
-          >
-            {/* Architectural Frame Header */}
-            <div className="flex items-center justify-between pb-2 mb-3 border-b border-[var(--hairline)] font-mono text-[0.58rem] text-[var(--muted)] uppercase tracking-wider">
-              <span>[FIG. 02 — WORKSPACE &amp; CRAFT]</span>
-              <span>SG / ENG.LAB</span>
-            </div>
-
-            {/* Editorial Visual Composition / Placeholder */}
-            <div className="relative aspect-[4/5] w-full bg-[var(--paper-card)] border border-[var(--hairline)] overflow-hidden flex flex-col justify-between p-6">
-              {/* Drafting crosshairs on corners */}
-              <span className="absolute top-2 left-2 font-mono text-[0.65rem] text-[var(--hairline-strong)]">+</span>
-              <span className="absolute top-2 right-2 font-mono text-[0.65rem] text-[var(--hairline-strong)]">+</span>
-              <span className="absolute bottom-2 left-2 font-mono text-[0.65rem] text-[var(--hairline-strong)]">+</span>
-              <span className="absolute bottom-2 right-2 font-mono text-[0.65rem] text-[var(--hairline-strong)]">+</span>
-
-              {/* Top Graphic Stamp */}
-              <div className="flex justify-between items-start z-10">
-                <span className="font-mono text-[0.68rem] tracking-widest font-bold text-[var(--ink)] border border-[var(--ink)] px-2 py-0.5 rounded-sm">
-                  DEV.PORTFOLIO
-                </span>
-                <span className="font-display-serif italic text-lg text-[var(--muted)]">©2026</span>
-              </div>
-
-              {/* Minimalist Center Motif */}
-              <div className="my-auto text-center z-10 flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full border border-[var(--ink)] flex items-center justify-center mb-4 transition-transform hover:scale-105 duration-300">
-                  <span className="font-display-serif italic text-3xl text-[var(--ink)]">SG</span>
-                </div>
-                <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-[var(--ink)] font-semibold mb-1">
-                  Siddhesh Gawade
-                </p>
-                <p className="font-sans text-[0.65rem] text-[var(--muted)] max-w-[16ch] leading-snug">
-                  Computer Engineering Student &amp; Builder
-                </p>
-              </div>
-
-              {/* Bottom Architectural Blueprint Ticker */}
-              <div className="pt-3 border-t border-[var(--hairline)] flex justify-between items-center z-10 font-mono text-[0.58rem] text-[var(--muted)] tracking-wider">
-                <span>SYSTEMS / AI / WEB</span>
-                <span>45°N REF.GRID</span>
-              </div>
-
-              {/* Subtle background grid pattern */}
-              <div className="absolute inset-0 bg-[radial-gradient(#121212_0.75px,transparent_0.75px)] [background-size:16px_16px] opacity-15 pointer-events-none" />
-            </div>
-
-            {/* Under-frame editorial caption */}
-            <div className="pt-3 flex items-start justify-between font-mono text-[0.58rem] text-[var(--muted)] leading-tight">
-              <span>PHOTO / WORKSPACE IDENTIFIER</span>
-              <span className="text-right">EDITABLE IN ASSETS</span>
-            </div>
+          <div ref={portraitRef} className="w-full max-w-md will-change-transform">
+            <EngineeringLab />
           </div>
         </div>
       </div>
