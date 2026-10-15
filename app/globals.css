@@ -486,38 +486,31 @@ body {
 }
 
 /* ============================================================
-   ENTRANCE REVEAL ANIMATIONS (Unobtrusive & Reduced-Motion safe)
+   CINEMATIC INTRO SEQUENCE STYLING & HERO TARGETS
    ============================================================ */
-.reveal-item {
-  animation: editorial-fade-up 0.9s var(--ease-editorial) both;
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: var(--paper);
+  will-change: transform;
 }
 
-.delay-1 {
-  animation-delay: 0.08s;
+.intro-mask-wrap {
+  overflow: hidden;
+  position: relative;
 }
 
-.delay-2 {
-  animation-delay: 0.16s;
+.intro-skip-btn {
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.delay-3 {
-  animation-delay: 0.24s;
+.hero-animate-target {
+  will-change: opacity, transform;
 }
 
-.delay-4 {
-  animation-delay: 0.32s;
-}
-
-@keyframes editorial-fade-up {
-  0% {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 /* ============================================================
    RESPONSIVE ART DIRECTION
@@ -613,6 +606,15 @@ body {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .intro-overlay {
+    display: none !important;
+  }
+
+  .hero-animate-target {
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   *,
