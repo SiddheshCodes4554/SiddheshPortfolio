@@ -6,6 +6,7 @@ import { useGSAP } from "@gsap/react";
 import { HeroIllustration } from "../components/hero-illustration";
 import { IntroSequence } from "../components/intro-sequence";
 import { AboutSection } from "../components/about-section";
+import { WorksArchive } from "../components/works-archive";
 
 gsap.registerPlugin(useGSAP);
 
@@ -159,7 +160,10 @@ export default function Home() {
         </footer>
       </main>
 
-      {/* ==================== 02. EDITORIAL ABOUT & EXPERTISE SECTION ==================== */}
+      {/* ==================== 02. INTERACTIVE WORKS ARCHIVE ==================== */}
+      <WorksArchive />
+
+      {/* ==================== 03. EDITORIAL ABOUT & EXPERTISE SECTION ==================== */}
       <AboutSection />
     </div>
   );
