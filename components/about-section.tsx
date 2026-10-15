@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { EngineeringLab } from "./engineering-lab";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -56,9 +55,35 @@ const expertiseData: ExpertiseItem[] = [
   },
 ];
 
+const skillCategories = [
+  {
+    id: "languages",
+    num: "01",
+    title: "Languages",
+    skills: ["TypeScript", "JavaScript (ES6+)", "Python", "C++", "SQL", "HTML5 / CSS3"],
+  },
+  {
+    id: "frameworks",
+    num: "02",
+    title: "Frameworks & Full-Stack",
+    skills: ["React", "Next.js (App Router)", "Node.js", "Express", "Tailwind CSS", "REST APIs"],
+  },
+  {
+    id: "ai-cv",
+    num: "03",
+    title: "AI & Computer Vision",
+    skills: ["OpenCV", "PyTorch", "TensorFlow", "Object Detection", "Image Processing", "Pipeline Inference"],
+  },
+  {
+    id: "systems-tools",
+    num: "04",
+    title: "Systems, Tools & Motion",
+    skills: ["WebSockets", "Git & GitHub", "Linux / CLI", "Docker", "Postman", "GSAP / ScrollTrigger"],
+  },
+];
+
 export function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const portraitRef = useRef<HTMLDivElement>(null);
   const [activeItem, setActiveItem] = useState<string | null>(null);
 
   useGSAP(
@@ -94,25 +119,7 @@ export function AboutSection() {
         }
       );
 
-      // 2. Portrait Subtle Parallax
-      if (portraitRef.current) {
-        gsap.fromTo(
-          portraitRef.current,
-          { yPercent: -4 },
-          {
-            yPercent: 6,
-            ease: "none",
-            scrollTrigger: {
-              trigger: portraitRef.current,
-              start: "top bottom",
-              end: "bottom top",
-              scrub: 1.2,
-            },
-          }
-        );
-      }
-
-      // 3. Expertise Rows Stagger
+      // 2. Expertise Rows Stagger
       gsap.fromTo(
         ".about-animate-row",
         {
@@ -233,10 +240,48 @@ export function AboutSection() {
           </div>
         </div>
 
-        {/* Right Column: Interactive Engineering Telemetry & Computer Vision Lab (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col items-center lg:items-end">
-          <div ref={portraitRef} className="w-full max-w-md will-change-transform">
-            <EngineeringLab />
+        {/* Right Column: Editorial Skills & Technical Stack Matrix (5 cols) */}
+        <div className="lg:col-span-5 flex flex-col gap-6 about-animate-fade w-full">
+          <div className="border-b border-[var(--hairline)] pb-3 flex items-baseline justify-between">
+            <span className="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-[var(--muted)]">
+              // TECHNICAL SKILLS &amp; STACK
+            </span>
+            <span className="font-mono text-[0.58rem] text-[var(--muted)]">
+              ACTIVE ARSENAL
+            </span>
+          </div>
+
+          {/* Clean Categorized Skills Stack */}
+          <div className="space-y-6">
+            {skillCategories.map((cat) => (
+              <div key={cat.id} className="space-y-2.5">
+                <div className="flex items-center justify-between border-b border-[var(--hairline)] pb-1">
+                  <span className="font-sans text-[0.75rem] font-semibold text-[var(--ink)] uppercase tracking-wider">
+                    {cat.title}
+                  </span>
+                  <span className="font-mono text-[0.62rem] text-[var(--muted)]">
+                    {cat.num}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                  {cat.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="font-mono text-[0.68rem] tracking-wide text-[var(--ink)] bg-[var(--paper)] border border-[var(--hairline-strong)] px-2.5 py-1 rounded-sm hover:bg-[var(--ink)] hover:text-[var(--paper)] hover:border-[var(--ink)] transition-all duration-150 cursor-default"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Understated bottom spec line */}
+          <div className="pt-4 border-t border-[var(--hairline)] flex items-center justify-between font-mono text-[0.58rem] text-[var(--muted)] uppercase tracking-wider">
+            <span>ENGINEERING PRACTICE · 2026</span>
+            <span>CLEAN CODE / ZERO BLOAT</span>
           </div>
         </div>
       </div>
