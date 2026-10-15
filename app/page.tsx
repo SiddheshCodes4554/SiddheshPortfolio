@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { HeroIllustration } from "../components/hero-illustration";
 import { IntroSequence } from "../components/intro-sequence";
+import { AboutSection } from "../components/about-section";
 
 gsap.registerPlugin(useGSAP);
 
@@ -54,8 +55,9 @@ export default function Home() {
       {/* ==================== CINEMATIC INTRO OVERLAY ==================== */}
       <IntroSequence onIntroRevealHero={handleRevealHero} />
 
+      {/* ==================== 01. HERO SECTION ==================== */}
       <main className="hero-section" id="top" aria-label="Siddhesh Gawade Portfolio Hero">
-        {/* ==================== 1. TOP EDITORIAL BAR ==================== */}
+        {/* Top Editorial Bar */}
         <header className="top-editorial-bar hero-animate-target">
           <div className="top-bar-left">
             <span className="status-star" aria-hidden="true">
@@ -85,7 +87,7 @@ export default function Home() {
           </div>
         </header>
 
-        {/* ==================== 2. OVERSIZED HERO TYPOGRAPHY ==================== */}
+        {/* Oversized Hero Typography */}
         <section className="hero-headline-wrap hero-animate-target" aria-label="Introduction">
           <h1 className="hero-main-title">
             <span className="title-first-name">Siddhesh</span>
@@ -96,7 +98,7 @@ export default function Home() {
           </h1>
         </section>
 
-        {/* ==================== 3. EDITORIAL GRID NAVIGATION ==================== */}
+        {/* Editorial Grid Navigation */}
         <nav
           className="editorial-grid-nav-bar hero-animate-target"
           aria-label="Portfolio index navigation"
@@ -116,7 +118,7 @@ export default function Home() {
           </ul>
         </nav>
 
-        {/* ==================== 4. LOWER EDITORIAL TRIPTYCH ==================== */}
+        {/* Lower Editorial Triptych */}
         <section
           className="editorial-triptych hero-animate-target"
           aria-label="Profile summary and illustration"
@@ -149,13 +151,16 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ==================== 5. BOTTOM EDITORIAL CAPTION ==================== */}
-        <footer className="bottom-editorial-caption hero-animate-target" id="works">
+        {/* Bottom Editorial Caption */}
+        <footer className="bottom-editorial-caption hero-animate-target">
           <p className="editorial-tagline">
             <em>just</em> a curious engineer crafting software with care.
           </p>
         </footer>
       </main>
+
+      {/* ==================== 02. EDITORIAL ABOUT & EXPERTISE SECTION ==================== */}
+      <AboutSection />
     </div>
   );
 }
