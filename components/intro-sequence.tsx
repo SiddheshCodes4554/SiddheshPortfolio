@@ -6,18 +6,14 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(useGSAP);
 
-const STORAGE_KEY = "sg_intro_sequence_completed_v2";
-
 interface IntroSequenceProps {
   onIntroComplete?: () => void;
   onIntroRevealHero?: () => void;
-  forceReplay?: boolean;
 }
 
 export function IntroSequence({
   onIntroComplete,
   onIntroRevealHero,
-  forceReplay = false,
 }: IntroSequenceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
@@ -48,11 +44,6 @@ export function IntroSequence({
   }, [isActive]);
 
   const handleComplete = () => {
-    try {
-      sessionStorage.setItem(STORAGE_KEY, "true");
-    } catch {
-      // Storage unavailable, ignore safely
-    }
     setIsActive(false);
     onIntroRevealHero?.();
     onIntroComplete?.();
@@ -80,22 +71,13 @@ export function IntroSequence({
 
   useGSAP(
     () => {
-      // 1. Reduced-motion check
+      // Reduced-motion check: immediately skip animation if user prefers reduced motion
       const prefersReducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)"
       ).matches;
 
-      // 2. Session check
-      const urlParams = new URLSearchParams(window.location.search);
-      const isForcedByUrl =
-        urlParams.get("intro") === "true" || urlParams.get("intro") === "replay";
-      const alreadyPlayed =
-        !forceReplay && !isForcedByUrl && sessionStorage.getItem(STORAGE_KEY) === "true";
-
-      if (prefersReducedMotion || alreadyPlayed) {
-        setIsActive(false);
-        onIntroRevealHero?.();
-        onIntroComplete?.();
+      if (prefersReducedMotion) {
+        handleComplete();
         return;
       }
 
@@ -108,35 +90,42 @@ export function IntroSequence({
 
       timelineRef.current = tl;
 
-      // Initial state setups
-      gsap.set(".frame-1-stage", { opacity: 1 });
-      gsap.set(".frame-2-stage", { opacity: 0 });
-      gsap.set(".frame-3-stage", { opacity: 0 });
-      gsap.set(".frame-4-stage", { opacity: 0 });
-      gsap.set(".frame-5-stage", { opacity: 0 });
-      gsap.set(".f2-keyword", { y: 14, opacity: 0 });
+      // 1. Initial State: Strict Visibility Isolation using autoAlpha (opacity + visibility)
+      gsap.set(".intro-frame-1", { autoAlpha: 1 });
+      gsap.set(".intro-frame-2", { autoAlpha: 0 });
+      gsap.set(".intro-frame-3", { autoAlpha: 0 });
+      gsap.set(".intro-frame-4", { autoAlpha: 0 });
+      gsap.set(".intro-frame-5", { autoAlpha: 0 });
+
+      // Frame 2 internals
+      gsap.set(".f2-keyword", { y: 16, opacity: 0 });
       gsap.set(".f2-meta", { opacity: 0, x: 8 });
       gsap.set(".f2-cross", { opacity: 0, scale: 0.5 });
+
+      // Frame 3 internals
       gsap.set(".f3-blueprint-line", { scaleX: 0 });
       gsap.set(".f3-name-outline", { opacity: 0, clipPath: "inset(0% 100% 0% 0%)" });
-      gsap.set(".f4-name-siddhesh", { opacity: 0, y: 15 });
-      gsap.set(".f4-name-gawade", { opacity: 0, y: 20 });
+
+      // Frame 4 internals
+      gsap.set(".f4-name-siddhesh", { opacity: 0, y: 18 });
+      gsap.set(".f4-name-gawade", { opacity: 0, y: 22 });
       gsap.set(".f4-badge", { opacity: 0, scale: 0.8 });
       gsap.set(".f4-meta", { opacity: 0, x: 10 });
-      gsap.set(".f5-tagline-word", { opacity: 0, y: 16 });
-      gsap.set(".f5-art-group", { opacity: 0, y: 12 });
+
+      // Frame 5 internals
+      gsap.set(".f5-tagline-word", { opacity: 0, y: 18 });
+      gsap.set(".f5-art-group", { opacity: 0, y: 14 });
 
       /* =========================================================================
          FRAME 01 — 0.0s to 0.4s: Minimal Loading Dot & "LOADING IDEAS ..."
          ========================================================================= */
       tl.addLabel("frame1", 0.0);
 
-      // Loading dot subtle pulse
       tl.to(
         ".f1-dot",
         {
-          scale: 1.25,
-          duration: 0.25,
+          scale: 1.3,
+          duration: 0.22,
           yoyo: true,
           repeat: 1,
           ease: "power1.inOut",
@@ -144,13 +133,13 @@ export function IntroSequence({
         "frame1"
       );
 
-      // Frame 1 exits at 0.38s
+      // Frame 1 transitions out cleanly
       tl.to(
-        ".frame-1-stage",
+        ".intro-frame-1",
         {
-          opacity: 0,
-          y: -8,
-          duration: 0.12,
+          autoAlpha: 0,
+          y: -10,
+          duration: 0.14,
           ease: "power2.in",
         },
         "frame1+=0.34"
@@ -161,54 +150,50 @@ export function IntroSequence({
          ========================================================================= */
       tl.addLabel("frame2", 0.4);
 
-      tl.set(".frame-2-stage", { opacity: 1 }, "frame2");
+      tl.to(".intro-frame-2", { autoAlpha: 1, duration: 0.1 }, "frame2");
 
-      // 4 coordinate crosshairs pop in
       tl.to(
         ".f2-cross",
         {
-          opacity: 0.7,
+          opacity: 0.65,
           scale: 1,
-          duration: 0.25,
+          duration: 0.22,
           stagger: 0.04,
           ease: "power2.out",
         },
         "frame2"
       );
 
-      // Keywords reveal one by one with smooth slide and fade
       tl.to(
         ".f2-keyword",
         {
           y: 0,
           opacity: 1,
-          duration: 0.35,
-          stagger: 0.07,
+          duration: 0.32,
+          stagger: 0.06,
           ease: "power3.out",
         },
-        "frame2+=0.05"
+        "frame2+=0.04"
       );
 
-      // Metadata block on right appears
       tl.to(
         ".f2-meta",
         {
           opacity: 1,
           x: 0,
-          duration: 0.35,
+          duration: 0.32,
           ease: "power2.out",
         },
-        "frame2+=0.15"
+        "frame2+=0.12"
       );
 
-      // Frame 2 exits cleanly into Frame 3
+      // Frame 2 exits cleanly
       tl.to(
-        [".f2-keyword", ".f2-meta", ".f2-cross"],
+        ".intro-frame-2",
         {
-          opacity: 0,
+          autoAlpha: 0,
           y: -12,
-          duration: 0.15,
-          stagger: 0.02,
+          duration: 0.14,
           ease: "power2.in",
         },
         "frame2+=0.55"
@@ -219,40 +204,39 @@ export function IntroSequence({
          ========================================================================= */
       tl.addLabel("frame3", 1.0);
 
-      tl.set(".frame-3-stage", { opacity: 1 }, "frame3");
+      tl.to(".intro-frame-3", { autoAlpha: 1, duration: 0.1 }, "frame3");
 
-      // Blueprint drafting guidelines draw across
       tl.to(
         ".f3-blueprint-line",
         {
           scaleX: 1,
-          duration: 0.4,
-          stagger: 0.06,
+          duration: 0.38,
+          stagger: 0.05,
           ease: "power3.out",
         },
         "frame3"
       );
 
-      // Wireframe / outline "Siddhesh" draws in with an architectural line reveal
       tl.to(
         ".f3-name-outline",
         {
           opacity: 1,
           clipPath: "inset(0% 0% 0% 0%)",
-          duration: 0.5,
+          duration: 0.48,
           ease: "power3.inOut",
         },
-        "frame3+=0.06"
+        "frame3+=0.05"
       );
 
-      // Transition Frame 3 into Frame 4
+      // Frame 3 exits into Frame 4
       tl.to(
-        ".f3-blueprint-line",
+        ".intro-frame-3",
         {
-          opacity: 0.15,
-          duration: 0.15,
+          autoAlpha: 0,
+          duration: 0.14,
+          ease: "power2.in",
         },
-        "frame3+=0.52"
+        "frame3+=0.55"
       );
 
       /* =========================================================================
@@ -260,12 +244,8 @@ export function IntroSequence({
          ========================================================================= */
       tl.addLabel("frame4", 1.6);
 
-      tl.set(".frame-4-stage", { opacity: 1 }, "frame4");
+      tl.to(".intro-frame-4", { autoAlpha: 1, duration: 0.1 }, "frame4");
 
-      // Hide frame 3 outline as solid name settles
-      tl.set(".frame-3-stage", { opacity: 0 }, "frame4");
-
-      // "Siddhesh" solid enters
       tl.to(
         ".f4-name-siddhesh",
         {
@@ -277,19 +257,17 @@ export function IntroSequence({
         "frame4"
       );
 
-      // "Gawade" rises up from mask
       tl.to(
         ".f4-name-gawade",
         {
           opacity: 1,
           y: 0,
-          duration: 0.4,
+          duration: 0.38,
           ease: "power4.out",
         },
         "frame4+=0.08"
       );
 
-      // (CE) badge pops in
       tl.to(
         ".f4-badge",
         {
@@ -298,85 +276,78 @@ export function IntroSequence({
           duration: 0.3,
           ease: "back.out(1.6)",
         },
-        "frame4+=0.16"
+        "frame4+=0.15"
       );
 
-      // Right-side discipline metadata
       tl.to(
         ".f4-meta",
         {
           opacity: 1,
           x: 0,
-          duration: 0.35,
+          duration: 0.32,
           ease: "power2.out",
         },
         "frame4+=0.18"
       );
 
-      // Frame 4 transition out to Frame 5
+      // Frame 4 exits into Frame 5
       tl.to(
-        [".f4-name-siddhesh", ".f4-name-gawade", ".f4-badge", ".f4-meta"],
+        ".intro-frame-4",
         {
-          opacity: 0,
+          autoAlpha: 0,
           y: -14,
-          duration: 0.16,
-          stagger: 0.02,
+          duration: 0.15,
           ease: "power2.in",
         },
-        "frame4+=0.52"
+        "frame4+=0.55"
       );
 
       /* =========================================================================
          FRAME 05 — 2.2s to 2.8s: Handcrafted Illustration + Tagline
-         "Turning Ideas into Impact." with lounging developer, plants, and cat
          ========================================================================= */
       tl.addLabel("frame5", 2.2);
 
-      tl.set(".frame-5-stage", { opacity: 1 }, "frame5");
+      tl.to(".intro-frame-5", { autoAlpha: 1, duration: 0.1 }, "frame5");
 
-      // Tagline words reveal in serif italic
       tl.to(
         ".f5-tagline-word",
         {
           opacity: 1,
           y: 0,
-          duration: 0.38,
+          duration: 0.35,
           stagger: 0.06,
           ease: "power3.out",
         },
         "frame5"
       );
 
-      // Illustration elements glide in with hand-drawn feel
       tl.to(
         ".f5-art-group",
         {
           opacity: 1,
           y: 0,
-          duration: 0.45,
+          duration: 0.42,
           ease: "power3.out",
         },
         "frame5+=0.08"
       );
 
-      // Frame 5 illustration lightbulb spark pulse
       tl.to(
         ".f5-bulb-sparks",
         {
           opacity: 1,
-          scale: 1.1,
+          scale: 1.15,
           transformOrigin: "center center",
-          duration: 0.25,
+          duration: 0.22,
           yoyo: true,
           repeat: 1,
           ease: "power1.inOut",
         },
-        "frame5+=0.25"
+        "frame5+=0.22"
       );
 
       /* =========================================================================
          FRAME 06 — 2.8s to 3.2s: Directional Page Split / Editorial Curl Wipe
-         Curling the intro page from right-to-left to reveal the live homepage
          ========================================================================= */
       tl.addLabel("frame6", 2.8);
 
@@ -457,18 +428,20 @@ export function IntroSequence({
         </div>
       </header>
 
-      {/* ==================== MAIN STAGE CONTAINER FOR ALL 5 FRAMES ==================== */}
-      <div className="relative z-10 flex-1 flex items-center justify-center w-full my-auto">
+      {/* ==================== MAIN STAGE: INDIVIDUAL FRAMES ==================== */}
+      <div className="relative z-10 flex-1 flex items-center justify-center w-full my-auto overflow-hidden">
         {/* -------------------- FRAME 01: MINIMAL LOADING DOT -------------------- */}
-        <div className="frame-1-stage absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="f1-dot inline-block w-2.5 h-2.5 rounded-full bg-[var(--ink)] mb-4" />
-          <p className="font-mono text-[0.68rem] sm:text-[0.74rem] uppercase tracking-[0.24em] text-[var(--muted)] m-0">
-            LOADING IDEAS ...
-          </p>
+        <div className="intro-frame intro-frame-1">
+          <div className="flex flex-col items-center justify-center text-center">
+            <span className="f1-dot inline-block w-2.5 h-2.5 rounded-full bg-[var(--ink)] mb-4" />
+            <p className="font-mono text-[0.68rem] sm:text-[0.74rem] uppercase tracking-[0.24em] text-[var(--muted)] m-0">
+              LOADING IDEAS ...
+            </p>
+          </div>
         </div>
 
         {/* -------------------- FRAME 02: KEYWORDS CLUSTER -------------------- */}
-        <div className="frame-2-stage absolute inset-0 flex items-center justify-center">
+        <div className="intro-frame intro-frame-2">
           <div className="relative w-full max-w-2xl px-6 py-8 flex items-center justify-between">
             {/* 4 Quadrant Crosshairs */}
             <span className="f2-cross absolute top-0 left-0 font-mono text-xs text-[var(--hairline-strong)]">
@@ -510,7 +483,7 @@ export function IntroSequence({
         </div>
 
         {/* -------------------- FRAME 03: WIREFRAME BLUEPRINT "SIDDHESH" -------------------- */}
-        <div className="frame-3-stage absolute inset-0 flex items-center justify-center">
+        <div className="intro-frame intro-frame-3">
           <div className="relative w-full max-w-4xl px-4 flex items-center justify-center">
             {/* Drafting grid lines */}
             <div className="absolute inset-0 flex flex-col justify-center pointer-events-none gap-6 sm:gap-10">
@@ -545,7 +518,7 @@ export function IntroSequence({
         </div>
 
         {/* -------------------- FRAME 04: FULL NAME (GAWADE) + (CE) + DISCIPLINE -------------------- */}
-        <div className="frame-4-stage absolute inset-0 flex items-center justify-center">
+        <div className="intro-frame intro-frame-4">
           <div className="w-full max-w-4xl px-4 flex items-center justify-between flex-wrap gap-6">
             {/* Left: Oversized Siddhesh Gawade (CE) */}
             <div className="flex flex-col text-left">
@@ -576,7 +549,7 @@ export function IntroSequence({
         </div>
 
         {/* -------------------- FRAME 05: ILLUSTRATION + TAGLINE -------------------- */}
-        <div className="frame-5-stage absolute inset-0 flex items-center justify-center">
+        <div className="intro-frame intro-frame-5">
           <div className="w-full max-w-5xl px-4 flex items-center justify-between flex-col md:flex-row gap-6 md:gap-10">
             {/* Left: Tagline */}
             <div className="flex flex-col text-left md:w-5/12">
@@ -615,13 +588,10 @@ export function IntroSequence({
 
                 {/* Left Potted Plant on Tripod Stand */}
                 <g className="f5-plant-left">
-                  {/* Stand */}
                   <line x1="85" y1="240" x2="70" y2="300" stroke="var(--ink)" strokeWidth="1.5" />
                   <line x1="95" y1="240" x2="85" y2="300" stroke="var(--ink)" strokeWidth="1.2" />
                   <line x1="105" y1="240" x2="115" y2="300" stroke="var(--ink)" strokeWidth="1.5" />
-                  {/* Pot */}
                   <path d="M78 215 L112 215 L106 242 L84 242 Z" fill="var(--paper)" stroke="var(--ink)" strokeWidth="1.4" />
-                  {/* Foliage leaves */}
                   <path d="M95 215 C80 195 65 200 68 180 C80 185 92 195 95 215" fill="none" stroke="var(--ink)" strokeWidth="1.2" />
                   <path d="M95 215 C100 185 115 180 120 170 C125 185 110 200 95 215" fill="none" stroke="var(--ink)" strokeWidth="1.2" />
                   <path d="M95 215 C95 190 90 170 95 160 C100 175 102 195 95 215" fill="none" stroke="var(--ink)" strokeWidth="1.2" />
@@ -629,25 +599,20 @@ export function IntroSequence({
 
                 {/* Center: Lounging Developer with Laptop */}
                 <g className="f5-dev">
-                  {/* Sofa Daybed */}
                   <rect x="150" y="260" width="280" height="10" rx="2" fill="var(--paper)" stroke="var(--ink)" strokeWidth="1.6" />
                   <rect x="145" y="244" width="290" height="18" rx="4" fill="var(--paper)" stroke="var(--ink)" strokeWidth="1.6" />
                   <line x1="180" y1="270" x2="168" y2="300" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
                   <line x1="390" y1="270" x2="400" y2="300" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
 
-                  {/* Reclined Body */}
                   <path d="M190 235 C198 205 218 190 248 185 C268 182 282 200 280 230" fill="var(--paper)" stroke="var(--ink)" strokeWidth="1.6" />
-                  {/* Head & Glasses */}
                   <circle cx="260" cy="168" r="14" fill="var(--paper)" stroke="var(--ink)" strokeWidth="1.6" />
                   <path d="M250 162 C252 152 262 148 272 150 C276 156 270 160 266 160" fill="var(--ink)" />
                   <circle cx="264" cy="168" r="3" fill="none" stroke="var(--ink)" strokeWidth="1.2" />
 
-                  {/* Arms & Laptop */}
                   <path d="M225 205 C240 220 260 225 285 224" stroke="var(--ink)" strokeWidth="1.8" strokeLinecap="round" />
                   <polygon points="280,224 286,192 312,188 308,220" fill="var(--paper)" stroke="var(--ink)" strokeWidth="1.5" />
                   <line x1="276" y1="225" x2="315" y2="220" stroke="var(--ink)" strokeWidth="2.2" strokeLinecap="round" />
 
-                  {/* Legs propped on couch */}
                   <path d="M270 235 C290 230 310 205 328 198 C342 192 355 205 370 220 C382 235 398 240 415 240" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" fill="none" />
 
                   {/* Glowing Lightbulb Overhead */}
@@ -655,7 +620,6 @@ export function IntroSequence({
                     <line x1="330" y1="90" x2="330" y2="125" stroke="var(--ink)" strokeWidth="1" strokeDasharray="2 2" />
                     <rect x="326" y="125" width="8" height="4" rx="1" stroke="var(--ink)" strokeWidth="1.2" fill="var(--paper)" />
                     <path d="M324 130 C318 134 318 142 322 148 C325 152 327 155 330 155 C333 155 335 152 338 148 C342 142 342 134 336 130 Z" stroke="var(--ink)" strokeWidth="1.4" fill="var(--paper)" />
-                    {/* Sparks */}
                     <g className="f5-bulb-sparks" stroke="var(--ink)" strokeWidth="1.2">
                       <line x1="330" y1="118" x2="330" y2="112" />
                       <line x1="344" y1="126" x2="350" y2="122" />

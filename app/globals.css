@@ -466,6 +466,22 @@ body {
   will-change: transform;
 }
 
+.intro-frame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.intro-frame-1 {
+  opacity: 1;
+  visibility: visible;
+}
+
 .intro-mask-wrap {
   overflow: hidden;
   position: relative;
