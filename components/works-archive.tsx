@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -207,7 +208,7 @@ export function WorksArchive() {
                   )}
 
                   {/* View Project Interaction */}
-                  <div className="animate-switch-target pt-2">
+                  <div className="animate-switch-target pt-2 flex items-center gap-4">
                     <button
                       onClick={() => handleViewProject(activeProject)}
                       className="group inline-flex items-center gap-3 font-sans text-sm font-medium text-[var(--ink)] cursor-pointer"
@@ -219,6 +220,13 @@ export function WorksArchive() {
                         View Project
                       </span>
                     </button>
+
+                    <Link
+                      href={`/works/${activeProject.id}`}
+                      className="font-mono text-[0.68rem] text-[var(--muted)] hover:text-[var(--ink)] transition-colors uppercase tracking-wider hidden sm:inline border-b border-transparent hover:border-[var(--ink)]"
+                    >
+                      [Open Page ↗]
+                    </Link>
                   </div>
                 </div>
 

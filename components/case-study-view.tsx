@@ -1,15 +1,19 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import gsap from "gsap";
 import { Project } from "../data/projects";
 
 interface CaseStudyViewProps {
   project: Project;
-  onBackToWorks: () => void;
-  onNextProject: () => void;
-  onPrevProject: () => void;
+  onBackToWorks?: () => void;
+  onNextProject?: () => void;
+  onPrevProject?: () => void;
+  prevSlug?: string;
+  nextSlug?: string;
 }
 
 export function CaseStudyView({
@@ -17,7 +21,34 @@ export function CaseStudyView({
   onBackToWorks,
   onNextProject,
   onPrevProject,
+  prevSlug,
+  nextSlug,
 }: CaseStudyViewProps) {
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (onBackToWorks) {
+      onBackToWorks();
+    } else {
+      router.push("/#works");
+    }
+  };
+
+  const handlePrev = () => {
+    if (onPrevProject) {
+      onPrevProject();
+    } else if (prevSlug) {
+      router.push(`/works/${prevSlug}`);
+    }
+  };
+
+  const handleNext = () => {
+    if (onNextProject) {
+      onNextProject();
+    } else if (nextSlug) {
+      router.push(`/works/${nextSlug}`);
+    }
+  };
   const [activeTab, setActiveTab] = useState<
     "overview" | "problem" | "solution" | "architecture" | "techStack" | "results"
   >("overview");
@@ -58,7 +89,7 @@ export function CaseStudyView({
       {/* Top Breadcrumb Bar */}
       <div className="w-full px-[var(--space-gutter)] py-4 border-b border-[var(--hairline)] flex items-center justify-between bg-[var(--paper)] z-20 relative">
         <button
-          onClick={onBackToWorks}
+          onClick={handleBack}
           className="group inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[var(--ink)] hover:text-[var(--muted)] transition-colors cursor-pointer"
         >
           <span className="transition-transform group-hover:-translate-x-1">←</span>
@@ -66,19 +97,25 @@ export function CaseStudyView({
         </button>
 
         <div className="flex items-center gap-4 font-mono text-xs">
+          <Link
+            href={`/works/${project.id}`}
+            className="text-[var(--muted)] hover:text-[var(--ink)] transition-colors uppercase hidden md:inline border border-[var(--hairline)] px-2 py-0.5"
+          >
+            Permalink ↗
+          </Link>
           <span className="text-[var(--muted)] uppercase hidden sm:inline">
             CASE STUDY MONOGRAPH / [{project.index}] {project.title}
           </span>
           <div className="flex items-center gap-1">
             <button
-              onClick={onPrevProject}
+              onClick={handlePrev}
               className="px-2 py-1 border border-[var(--hairline)] hover:border-[var(--ink)] transition-colors cursor-pointer"
               title="Previous project"
             >
               ←
             </button>
             <button
-              onClick={onNextProject}
+              onClick={handleNext}
               className="px-2 py-1 border border-[var(--hairline)] hover:border-[var(--ink)] transition-colors cursor-pointer"
               title="Next project"
             >
@@ -534,7 +571,7 @@ export function CaseStudyView({
           {/* Bottom Footer Row */}
           <div className="pt-8 border-t border-[var(--hairline)] flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-[var(--muted)]">
             <button
-              onClick={onBackToWorks}
+              onClick={handleBack}
               className="hover:text-[var(--ink)] transition-colors cursor-pointer"
             >
               ← RETURN TO WORKS GALLERY

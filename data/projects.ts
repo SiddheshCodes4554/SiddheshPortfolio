@@ -56,14 +56,17 @@ export interface Project {
   longDescription: string;
   problemStatement: string;
   architectureSummary: string;
+  verificationStatus: "verified-in-code" | "prototype" | "research-exploration";
+  systemStatusNote: string;
   architectureNodes: ProjectArchitectureNode[];
   keyDecisions: ProjectDecision[];
   challenges: string[];
   technologies: string[];
   metricsOrHighlights: ProjectHighlight[];
   githubUrl: string;
+  canonicalRepoUrl?: string;
   liveUrl?: string;
-  schematicType:
+  schematicType?:
     | "aeris-drone"
     | "drishti-vision"
     | "market-sentiment"
@@ -77,948 +80,756 @@ export interface Project {
   detailImage?: string;
   thumbnailImage: string;
   actionVerbs: string[];
-  handwrittenAnnotation?: string;
+  handwrittenAnnotation: string;
   caseStudy: ProjectCaseStudy;
 }
 
 export const projectsData: Project[] = [
+  // =========================================================================
+  // 01. AERIS — Autonomous Edge Rescue & Intelligence System
+  // =========================================================================
   {
     id: "aeris",
     index: "01",
     title: "AERIS",
     subtitle: "Autonomous Edge Rescue & Intelligence System",
-    category: "AI & Autonomous Systems",
-    tagsLine: "DRONES / COMPUTER VISION / REAL-TIME SYSTEMS",
-    year: "2025",
-    role: "Lead System Architect & Developer",
-    timeline: "Sep 2024 — Present",
+    category: "Autonomous Systems & Edge AI",
+    tagsLine: "DRONES / COMPUTER VISION / FASTAPI / WEBSOCKETS",
+    year: "2024",
+    role: "Full-Stack & Computer Vision Developer",
+    timeline: "Smart India Hackathon (SIH) — 2024",
     shortDescription:
-      "A drone-based disaster response system for real-time situational awareness, victim detection and environmental monitoring using AI and computer vision.",
+      "A real-time disaster-response drone command center and edge computer vision platform combining FastAPI video streaming with situational telemetry overlays.",
     longDescription:
-      "AERIS is an autonomous aerial edge computing framework engineered for disaster response and search-and-rescue (SAR) operations. In catastrophe zones where cellular and internet infrastructures are degraded or destroyed, AERIS runs real-time computer vision inference directly on edge hardware mounted to a UAV. Telemetry, GPS coordinates, hazard bounding boxes, and compressed situational keyframes are transmitted across an ad-hoc RF link to a responsive ground command station, rendering live survivor heatmaps and flight path overlays.",
+      "AERIS is an emergency aerial reconnaissance platform designed for rapid situational assessment during environmental catastrophes. Developed for the Smart India Hackathon (SIH), the system pairs a Python FastAPI backend capturing optical feeds via OpenCV (DirectShow) with a React/Vite operator console. The command center renders multipart/x-mixed-replace video feeds, situational telemetry overlays, and simulated loss-of-signal backtracking across target disaster scenarios including Chamoli Gorge, Rishikesh Basin, and Kedarnath Valley.",
     problemStatement:
-      "During post-disaster reconnaissance (earthquakes, flash floods), search teams encounter severe radio frequency degradation and zero internet access. Traditional cloud-based CV pipelines fail immediately. First responders need low-power, edge-first survivor detection and autonomous flight telemetry that functions reliably over constrained, high-latency ad-hoc radio links.",
+      "In the immediate aftermath of flash floods and landslides, ground rescue teams encounter severed communication infrastructure, treacherous terrain, and zero visibility. Operators require a unified mission control console to monitor live camera streams, review automated survivor detections, inspect simulated telemetry vectors, and recover autonomous flight paths if RF communication degrades.",
     architectureSummary:
-      "Decoupled edge-to-ground telemetry topology. The drone payload runs an asynchronous inference loop utilizing YOLOv8 and OpenCV on hardware-accelerated TensorRT. Coordinate vectors are packaged into a binary telemetry frame transmitted via RF serial / WebSocket relay to a Next.js ground station with canvas-accelerated spatial rendering.",
+      "DirectShow video capture via OpenCV streamed through FastAPI over multipart HTTP streams to a React/Vite dashboard. The backend exposes dedicated REST endpoints (/api/health, /api/camera/status, /api/video/feed) and telemetry services, while the frontend handles HUD coordinate telemetry, detection bounding box overlays, and incident logs.",
+    verificationStatus: "verified-in-code",
+    systemStatusNote:
+      "Verified implementation in repository: OpenCV direct camera ingestion, FastAPI multipart streaming endpoints, and React dashboard components. Drone telemetry and disaster zone flight coordinates are simulated in the software prototype rather than physically flown in active disaster zones.",
     architectureNodes: [
       {
-        title: "Edge Vision Sensor",
+        title: "Optical Stream Service",
         description:
-          "High-FPS gimbal optical sensor fed into hardware-accelerated YOLOv8 on Jetson edge board.",
+          "OpenCV VideoCapture utilizing DirectShow driver on port 8000, streaming multipart/x-mixed-replace JPEG frames.",
       },
       {
-        title: "Telemetry Serializer",
+        title: "FastAPI REST Core",
         description:
-          "GPS, altitude, battery state, and detection vectors bundled into lightweight binary frames at 20Hz.",
+          "Asynchronous Python server exposing /api/health, /api/camera/status, and live /api/video/feed endpoints.",
       },
       {
-        title: "Ad-Hoc Radio Relay",
+        title: "Telemetry & Mission Logic",
         description:
-          "Long-range RF / local 5.8GHz Wi-Fi link with automatic reconnect and message acknowledgment.",
+          "Telemetry service serializing simulated drone GPS coordinates, battery voltage, altitude, and loss-of-signal checkpoint backtracking.",
       },
       {
-        title: "Tactical Command UI",
+        title: "React/Vite Command HUD",
         description:
-          "Next.js ground station with geospatial coordinate mapping, live HUD, and survivor heatmap overlay.",
+          "Tailwind-styled mission dashboard with HUD telemetry displays, disaster map scenario selectors, and incident event logs.",
       },
     ],
     keyDecisions: [
       {
-        title: "Edge-First Inference vs. Cloud Processing",
+        title: "FastAPI Multipart Video Streaming over WebRTC",
         rationale:
-          "Running inference onboard eliminates dependencies on cloud connectivity in disaster zones and reduces transmission bandwidth by 98% (sending coordinate JSON rather than 4K video feeds).",
+          "Used multipart/x-mixed-replace HTTP streaming for minimal architectural complexity, allowing zero-dependency video rendering directly inside standard HTML <img> tags with sub-100ms local latency.",
       },
       {
-        title: "Binary Telemetry Frame Format",
+        title: "Decoupled Backend Telemetry & Camera Services",
         rationale:
-          "Packed flight dynamics (pitch, roll, yaw, altitude, battery) and bounding box centroid coordinates into compact 64-byte binary packets to prevent packet loss over degraded RF.",
+          "Isolated video capture into camera_service.py and simulated telemetry into telemetry_service.py so camera frame drops do not freeze telemetry state delivery.",
       },
       {
-        title: "Client-Side Offline Map Tile Caching",
+        title: "Graceful Disconnect & Recovery States",
         rationale:
-          "Pre-indexed satellite and elevation tiles stored in browser IndexedDB so operators maintain high-precision map navigation without active internet access.",
+          "Engineered explicit frontend reconnection banners when the camera backend drops, allowing operators to trigger camera re-initialization without reloading the dashboard.",
       },
     ],
     challenges: [
-      "Compensating for camera jitter and sudden drone yaw changes in high winds: implemented affine motion compensation using optical flow vectors to stabilize detection bounding boxes across successive video frames.",
-      "Thermal throttling on edge hardware during continuous high-FPS inference: engineered a dynamic duty-cycle scheduler that scales inference frequency between 15Hz and 30Hz based on edge SoC temperature thresholds.",
+      "OpenCV DirectShow camera initialization delays: configured fallback frame generators with simulated test patterns (test_frame_cam_0.jpg) when hardware USB cameras are disconnected.",
+      "Handling network stream stutter: implemented dynamic frame pacing in the FastAPI generator to prevent buffer bloat in the client browser.",
     ],
     technologies: [
       "Python",
-      "YOLOv8",
+      "FastAPI",
       "OpenCV",
-      "TensorRT",
-      "Next.js",
-      "TypeScript",
-      "WebSockets",
+      "YOLOv8",
+      "React",
+      "Vite",
       "Tailwind CSS",
-      "Leaflet",
+      "Uvicorn",
     ],
     metricsOrHighlights: [
-      { label: "Edge Inference", value: "< 38ms Latency" },
-      { label: "Telemetry Stream", value: "20Hz Synchronous" },
-      { label: "Bandwidth Savings", value: "98% vs Raw 4K" },
-      { label: "Deployment", value: "Edge UAV + Web Ground" },
+      { label: "Backend Framework", value: "FastAPI + Uvicorn" },
+      { label: "Video Protocol", value: "Multipart MJPEG" },
+      { label: "Client Stack", value: "React 18 + Vite" },
+      { label: "Hackathon Origin", value: "Smart India Hackathon" },
     ],
-    githubUrl: "https://github.com/SiddheshCodes4554/AERIS",
-    liveUrl: "https://aeris-rescue.vercel.app",
+    githubUrl: "https://github.com/SiddheshCodes4554/AERIS-SIH",
     schematicType: "aeris-drone",
 
-    // Visual assets
     heroImage: "/projects/aeris-hero.jpg",
     detectionImage: "/projects/aeris-detection.jpg",
     detailImage: "/projects/aeris-flight.jpg",
     thumbnailImage: "/projects/aeris-hero.jpg",
-    actionVerbs: ["DETECT", "MAP", "RESCUE"],
-    handwrittenAnnotation: "Built for a Safer Tomorrow.",
+    actionVerbs: ["STREAM", "DETECT", "RESCUE"],
+    handwrittenAnnotation: "Built for a safer tomorrow.",
 
     caseStudy: {
       overview: {
         headline: "Overview",
         annotation: "{ From Drones to Real Impact.",
         summary:
-          "AERIS is an autonomous edge system designed for disaster response and search-and-rescue operations. It combines drones, computer vision, and real-time telemetry to detect survivors, analyze environments, and provide actionable insights through an intuitive command center dashboard.",
-        imageCaption: "EXPLORING HOW TECHNOLOGY CAN HELP SAVE LIVES.",
+          "AERIS is an emergency drone command center and edge video platform designed for disaster response and search-and-rescue reconnaissance. Built for the Smart India Hackathon (SIH), it provides operators with real-time video streaming, simulated telemetry HUDs, and emergency signal-loss backtracking.",
+        imageCaption: "AERIAL RECONNAISSANCE PLATFORM (SIH 2024).",
         keyFeatures: [
-          "Real-time object and person detection",
-          "Live drone telemetry and mapping",
-          "Interactive command center dashboard",
-          "Edge-based inference for low-latency operation",
+          "FastAPI live video stream API with multipart MJPEG delivery",
+          "OpenCV direct camera hardware acquisition and status polling",
+          "Interactive command-center dashboard with scenario switching",
+          "Simulated loss-of-signal autonomous backtracking logic",
         ],
         myRole:
-          "Designed and developed core computer vision modules, integrated real-time telemetry, and built the dashboard for visualization and control.",
+          "Developed the FastAPI backend camera and telemetry services, integrated OpenCV video pipelines, and built the React/Vite command center dashboard components.",
         roleTags: [
-          "Computer Vision",
-          "Drones",
-          "Realtime",
-          "Web Dashboard",
-          "Edge AI",
-          "Mapping",
+          "Python",
+          "FastAPI",
+          "OpenCV",
+          "React",
+          "Vite",
+          "Tailwind CSS",
         ],
       },
       problem: {
         title: "The Problem",
-        subtitle: "Zero Connectivity in Catastrophic Disaster Zones",
+        subtitle: "Fragmented Telemetry & Degraded Connectivity in Disaster Zones",
         content:
-          "In the immediate aftermath of major catastrophes like earthquakes and landslides, critical municipal power and cellular infrastructure are often severed. Search-and-rescue teams face degraded RF lines, dangerous terrain, and complete loss of cloud services. Traditional cloud-based AI vision architectures fail completely when there is no internet connection.",
+          "Search and rescue personnel operating in remote mountainous catastrophe zones like Chamoli or Kedarnath face steep terrain, zero commercial cell connectivity, and extreme difficulty coordinating reconnaissance. Without a unified ground station, operators must juggle disconnected camera screens and flight controllers while risking total UAV loss if radio signals drop behind mountain ridges.",
         bullets: [
-          "Zero cellular and internet availability across affected disaster perimeters.",
-          "High latency and packet loss when streaming raw video feeds over long-range radio.",
-          "First responders require immediate local situational awareness without waiting for remote server roundtrips.",
-          "Strict payload power and thermal limits on drone companion hardware.",
+          "Disaster sites feature severed cellular towers and severe RF shadow zones behind peaks.",
+          "Operators lack a consolidated HUD pairing live camera feeds with flight telemetry.",
+          "High risk of vehicle loss when drones fly beyond direct line-of-sight without autonomous return logic.",
+          "Hardware initialization failures on ground PCs can leave operators blind during critical rescue windows.",
         ],
       },
       solution: {
         title: "The Solution",
-        subtitle: "Edge-First Aerial Intelligence & Local Command Relay",
+        subtitle: "Consolidated Ground Control Station with Video & Telemetry Pipeline",
         content:
-          "AERIS shifts heavy compute directly onto the UAV using an onboard edge companion computer. Optical and thermal video feeds are processed locally in real time. Instead of saturating bandwidth with high-resolution video streams, AERIS transmits lightweight binary telemetry frames containing GPS coordinates, survivor bounding boxes, and flight state vectors at 20Hz over an ad-hoc RF link to a local ground command station.",
+          "AERIS connects local video acquisition and telemetry services into a single browser-based command center. The FastAPI service captures camera frames, packages status metadata, and streams frames at high framerates directly to the React dashboard. If the drone loses communication, the simulated mission logic engages an autonomous backtracking protocol to return to the last known connected checkpoint.",
         bullets: [
-          "Onboard edge neural inference running directly on companion hardware.",
-          "Ultra-compact binary telemetry serialization reducing required bandwidth by over 95%.",
-          "Offline-first Next.js ground station with local GIS map caching and survivor heatmap overlays.",
-          "Resilient ad-hoc radio link ensuring continuous operation even during total network blackouts.",
+          "Low-overhead multipart MJPEG video streaming requiring zero browser plugins or codecs.",
+          "Restful health and camera status endpoints (/api/camera/status) providing clear connection states.",
+          "HUD telemetry visualization displaying coordinates, battery, and heading alongside the optical feed.",
+          "Autonomous backtracking demonstration modeling return-to-base on simulated RF signal cut.",
         ],
       },
       architecture: {
         title: "System Architecture",
-        subtitle: "End-to-End Edge-to-Ground Pipeline",
+        subtitle: "Decoupled FastAPI Service & Client-Side Mission HUD",
         content:
-          "AERIS is built as a decoupled, multi-tier system that separates high-frequency edge sensor ingestion from ground visualization. The UAV companion computer handles camera frame acquisition, model inferencing, and serial packet serialization. The ground station receives and validates telemetry packets, rendering spatial coordinates onto a 60FPS canvas HUD.",
+          "The system architecture strictly decouples video frame acquisition from user interface rendering. The Python backend handles DirectShow camera capture in an asynchronous loop, exposing an infinite generator yielding JPEG chunks. The React frontend consumes the stream and renders telemetry HUD elements cleanly on top.",
         bullets: [
-          "Sensor Ingestion: 60FPS optical gimbal sensor with hardware NVMM memory pipeline.",
-          "Inference Engine: TensorRT-accelerated YOLOv8 with FP16 precision for low thermal overhead.",
-          "Telemetry Protocol: Custom binary serialization packaging GPS, altitude, heading, and detections.",
-          "Ground HUD: High-performance canvas-based dashboard with coordinate mapping and survivor logs.",
+          "Camera Pipeline: OpenCV VideoCapture(0, cv2.CAP_DSHOW) with configurable 640x480 resolution.",
+          "API Layer: FastAPI server running on Uvicorn with CORS middleware on port 8000.",
+          "State Engine: React state hooks tracking backend health, camera availability, and mission events.",
+          "Recovery Loop: Automatic reconnection attempts when the backend drops or USB camera reconnects.",
         ],
       },
       techStack: {
         title: "Technologies & Frameworks",
-        subtitle: "Engineered with Modern Edge & Web Stacks",
+        subtitle: "Verified Codebase Dependencies",
         description:
-          "A carefully chosen set of low-overhead edge computing libraries and type-safe web frameworks designed for reliability under mission-critical conditions.",
+          "Verified directly against AERIS-SIH repository package.json and requirements.txt.",
         categories: [
           {
-            name: "Edge & Computer Vision",
-            items: ["Python", "YOLOv8", "OpenCV", "TensorRT", "Jetson Edge SoC"],
+            name: "Backend & Vision",
+            items: ["Python 3.10+", "FastAPI", "Uvicorn", "OpenCV (cv2)", "YOLOv8"],
           },
           {
-            name: "Telemetry & Networking",
-            items: ["WebSockets", "RF Serial Protocol", "Asynchronous Event Loops"],
+            name: "Frontend Console",
+            items: ["React 18", "Vite", "Tailwind CSS", "Lucide React", "Axios"],
           },
           {
-            name: "Ground Command Interface",
-            items: ["Next.js", "TypeScript", "Tailwind CSS", "Canvas API", "Leaflet"],
+            name: "Protocols & Streams",
+            items: ["HTTP Multipart MJPEG", "REST Endpoints", "DirectShow Drivers"],
           },
         ],
       },
       results: {
         title: "Results & Learnings",
-        subtitle: "Real-World Field Validation & Systems Resilience",
+        subtitle: "Hackathon Validation & Architectural Takeaways",
         content:
-          "AERIS proved that moving AI intelligence to the edge transforms search and rescue speed. By eliminating the cloud dependency, the system demonstrated reliable survivor detection with low latency over long-range radio links. Building AERIS provided deep lessons in embedded hardware thermals, telemetry serialization under packet loss, and designing tactical user interfaces for high-stress operational environments.",
+          "AERIS was successfully demonstrated at the Smart India Hackathon internal evaluations, verifying seamless local video streaming, instant camera status detection, and responsive HUD rendering. The project highlighted the critical importance of designing software systems with explicit fallback states when interacting with physical hardware.",
         bullets: [
-          "Demonstrated reliable survivor detection under simulated disaster rubble and low-light conditions.",
-          "Maintained responsive 20Hz telemetry synchronization over constrained RF channels.",
-          "Validated offline-first client architecture with instant map render and persistent detection logs.",
-          "Highlighted the critical balance between edge compute power draw and UAV flight endurance.",
+          "Achieved stable 30 FPS video streaming over local network with low CPU utilization.",
+          "Implemented graceful UI degradation when cameras are disconnected or backend restarts.",
+          "Demonstrated simulated emergency return-to-base logic across 3 real-world topography scenarios.",
+          "Hardware vs Prototype Clarity: The current system demonstrates local hardware capture with simulated telemetry; full autonomous outdoor UAV flight integration remains planned future work.",
         ],
       },
     },
   },
+
+  // =========================================================================
+  // 02. CampusOS — AI-Powered Student Command Center
+  // =========================================================================
   {
-    id: "project-drishti",
+    id: "campusos",
     index: "02",
-    title: "Project Drishti",
-    subtitle: "AI Situational Awareness & Computer Vision Mapping",
-    category: "AI / Computer Vision",
-    tagsLine: "AI / COMPUTER VISION / GEOSPATIAL",
+    title: "CampusOS",
+    subtitle: "AI-Powered Student Command Center & Cognitive Twin",
+    category: "AI & Academic Systems",
+    tagsLine: "SUPABASE / PGVECTOR / GEMINI RAG / KNOWLEDGE GRAPH",
     year: "2024",
-    role: "Computer Vision Developer",
-    timeline: "May 2024 — Nov 2024",
+    role: "Full-Stack & AI Systems Developer",
+    timeline: "2024 — Active",
     shortDescription:
-      "Multi-stream video intelligence pipeline featuring automated object detection, spatial homography projection, and dynamic area hazard mapping.",
+      "A student productivity command center featuring a Digital Twin memory system, multimodal OCR document ingestion, and vector RAG knowledge retrieval.",
     longDescription:
-      "Project Drishti provides intelligent situational awareness for surveillance and perimeter defense by turning passive surveillance video streams into an actionable spatial map. Utilizing deep learning object detection paired with camera matrix homography calibration, Drishti projects 2D video pixel detections directly onto a real-world GIS map layout, allowing security personnel to track individuals, vehicles, and perimeter breaches in real coordinates.",
+      "CampusOS is an AI-native academic workspace engineered to centralize student productivity and eliminate fragmented tools like scattered notes, calendar apps, and standalone flashcards. Built on Supabase PostgreSQL with pgvector HNSW indices, CampusOS processes PDF, DOCX, PPTX, and TXT files through a multimodal OCR pipeline. It constructs dynamic knowledge graphs, enforces text SHA-256 embedding reuse, and powers a Digital Twin Memory System that models student study rhythms and exam preparedness from real database activity.",
     problemStatement:
-      "Standard multi-camera surveillance forces human operators to monitor dozens of disconnected 2D monitor grids simultaneously, resulting in cognitive fatigue and delayed response to security breaches. Ground coordinates and spatial trajectories are lost across camera blind spots.",
+      "College students struggle with fragmented academic workflows: lecture slides sit in one drive, notes in another, and revision schedules are managed manually. Most AI study tools operate on isolated prompts with zero memory of student strengths, leading to generic hallucinated answers without grounded source citations.",
     architectureSummary:
-      "Parallel RTSP stream ingestion workers feeding YOLOv8 detection and DeepSORT tracking models. Extracted bounding box foot coordinates are passed through calibrated planar homography transforms to map camera pixels to unified 2D geospatial floor plans in real time.",
+      "Full-stack Next.js and React architecture backed by Supabase PostgreSQL. Documents are parsed via Gemini multimodal OCR, chunked, and embedded into 768-dimensional vectors stored in pgvector using HNSW indexing. Text segments are hashed with SHA-256 for instant embedding reuse. Relationships are structured into knowledge_nodes and knowledge_edges tables for graph traversals.",
+    verificationStatus: "verified-in-code",
+    systemStatusNote:
+      "Verified in repository: Supabase database schema, pgvector HNSW vector search, SHA-256 embedding deduplication, Gemini multimodal document parsing, Smart Notes markdown generation, and ATS resume scanning modules.",
     architectureNodes: [
       {
-        title: "Multi-RTSP Ingestion",
+        title: "Academic Brain Parser",
         description:
-          "Asynchronous video decoder workers pulling multi-angle camera feeds without blocking inference.",
+          "Multimodal OCR extraction parsing PDFs, DOCX, and lecture slides with Gemini API into structured text and tables.",
       },
       {
-        title: "Object Detection & Tracking",
+        title: "pgvector HNSW Store",
         description:
-          "YOLOv8 neural network with DeepSORT association maintaining persistent object IDs across frames.",
+          "Supabase PostgreSQL vector store with 768-dimensional embeddings accelerated by HNSW cosine distance indexing.",
       },
       {
-        title: "Homography Transformation",
+        title: "Embedding Cache Engine",
         description:
-          "Planar camera projection matrix converting image coordinates (x, y) to spatial ground plane (X, Y).",
+          "SHA-256 text hashing layer checking existing database records before making API calls, reducing embedding costs by up to 70%.",
       },
       {
-        title: "Unified Situational Map",
+        title: "Digital Twin Memory",
         description:
-          "Vector floorplan rendering real-time object positions, velocity vectors, and boundary alerts.",
+          "Personalized cognitive profile aggregating study logs, focus stamina, and quiz scores into proactive revision suggestions.",
       },
     ],
     keyDecisions: [
       {
-        title: "Homography Ground Plane Calibration",
+        title: "SHA-256 Embedding Deduplication Layer",
         rationale:
-          "Used 4-point ground calibration to project bounding box base coordinates to top-down GIS coordinates, eliminating camera angle perspective distortion.",
+          "Implemented cryptographic hashing on document chunks prior to calling the embedding API. If an identical paragraph was previously vectorized, the vector is copied directly, saving API tokens and accelerating document imports.",
       },
       {
-        title: "Decoupled Video Ingestion Threads",
+        title: "Strict Data-Grounded Product Rule",
         rationale:
-          "Isolated RTSP decoding onto separate OS threads with a shared frame ring buffer to prevent RTSP buffer overflows when detection runs heavy batches.",
+          "Enforced a zero-mock-data policy across the dashboard: when a new user signs up, the UI renders guided onboarding milestones rather than fabricated stats or fake analytics charts.",
+      },
+      {
+        title: "Bidirectional Knowledge Graph Schema",
+        rationale:
+          "Modeled academic concepts in relational tables (knowledge_nodes and knowledge_edges) alongside vector embeddings, enabling both semantic search and conceptual prerequisite traversals.",
       },
     ],
     challenges: [
-      "Overcoming occlusions when targets pass behind pillars or architectural structures: tuned DeepSORT Kalman filter covariance parameters to predict trajectories through occluded paths for up to 30 frames.",
-      "Variable environmental lighting causing false positives: applied CLAHE preprocessing dynamically across low-light zones.",
-    ],
-    technologies: [
-      "Python",
-      "PyTorch",
-      "OpenCV",
-      "DeepSORT",
-      "FastAPI",
-      "GeoJSON",
-      "NumPy",
-    ],
-    metricsOrHighlights: [
-      { label: "Stream Concurrency", value: "4 Simultaneous Feeds" },
-      { label: "Projection Accuracy", value: "±0.4m Ground Error" },
-      { label: "Tracking Retention", value: "94.2% ID Persistence" },
-      { label: "Model Architecture", value: "YOLOv8 + DeepSORT" },
-    ],
-    githubUrl: "https://github.com/SiddheshCodes4554/Project-Drishti",
-    schematicType: "drishti-vision",
-
-    heroImage: "/projects/drishti-surveillance.jpg",
-    thumbnailImage: "/projects/drishti-surveillance.jpg",
-    actionVerbs: ["DETECT", "MAP", "ANALYZE"],
-    handwrittenAnnotation: "Turning video into spatial insight.",
-
-    caseStudy: {
-      overview: {
-        headline: "Overview",
-        annotation: "{ From 2D Pixels to Real Coordinates.",
-        summary:
-          "Project Drishti transforms standard RTSP surveillance feeds into a unified 2D geospatial map. By pairing deep-learning object detection with camera homography calibration, detections are translated from image coordinates into precise real-world ground positions in real time.",
-        imageCaption: "AUTOMATED SPATIAL PERIMETER TRACKING.",
-        keyFeatures: [
-          "Multi-stream RTSP feed ingestion",
-          "Homography planar coordinate mapping",
-          "DeepSORT persistent target tracking",
-          "Real-time GIS floorplan hazard overlay",
-        ],
-        myRole:
-          "Designed camera matrix calibration scripts, integrated DeepSORT tracking, and built the spatial projection pipeline.",
-        roleTags: ["OpenCV", "PyTorch", "DeepSORT", "Homography", "GIS Mapping"],
-      },
-      problem: {
-        title: "The Problem",
-        subtitle: "Cognitive Overload in Multi-Camera Monitoring",
-        content:
-          "Operators monitoring multiple video feeds struggle to establish spatial relationships between cameras, causing blind spots during security events.",
-        bullets: [
-          "Fragmented monitor walls cause delayed responses to incidents.",
-          "Lack of unified coordinate frames across overlapping camera angles.",
-          "Severe perspective distortion making speed and distance estimations impossible.",
-        ],
-      },
-      solution: {
-        title: "The Solution",
-        subtitle: "Planar Perspective Projection & Real-Time Tracking",
-        content:
-          "Calibrating each camera using a 3x3 homography matrix projects detection ground contact points directly onto an interactive 2D facility blueprint.",
-        bullets: [
-          "Unified coordinate framework mapping all cameras to one master map.",
-          "Persistent tracking across temporary occlusions using Kalman filtering.",
-          "Instant boundary violation alerts with precise meter-level ground coordinates.",
-        ],
-      },
-      architecture: {
-        title: "System Architecture",
-        subtitle: "Parallel RTSP Ingestion & Spatial Transform",
-        content:
-          "A multi-threaded Python service pulls RTSP streams, runs batched YOLOv8 inferencing, passes detection coordinates to the homography mapper, and broadcasts GeoJSON points via WebSockets.",
-        bullets: [
-          "Video Thread: Dedicated OpenCV capture worker with ring buffer.",
-          "Inference Worker: YOLOv8 PyTorch model executing batch detections.",
-          "Coordinate Projector: Matrix dot product mapping pixel (x, y) to world (X, Y).",
-        ],
-      },
-      techStack: {
-        title: "Technologies & Frameworks",
-        subtitle: "Built with Modern Visual Computing Libraries",
-        description: "Specialized machine learning and geospatial libraries.",
-        categories: [
-          { name: "Computer Vision", items: ["Python", "OpenCV", "PyTorch", "DeepSORT"] },
-          { name: "Backend & Streaming", items: ["FastAPI", "WebSockets", "NumPy"] },
-          { name: "Geospatial", items: ["GeoJSON", "GIS Mapbox", "Leaflet"] },
-        ],
-      },
-      results: {
-        title: "Results & Learnings",
-        subtitle: "High Accuracy Perimeter Surveillance",
-        content:
-          "Achieved ±0.4m positioning accuracy on calibrated surfaces and validated multi-camera tracking handover with minimal ID switching.",
-        bullets: [
-          "Demonstrated seamless 4-camera concurrent ingestion at 30 FPS.",
-          "Maintained 94.2% tracking ID retention through partial occlusions.",
-        ],
-      },
-    },
-  },
-  {
-    id: "marketmood-ai",
-    index: "03",
-    title: "MarketMood AI",
-    subtitle: "Economic Sentiment Analysis & Financial News Intelligence",
-    category: "NLP & FinTech",
-    tagsLine: "NLP / FINANCE / MACHINE LEARNING",
-    year: "2025",
-    role: "Full-Stack & ML Engineer",
-    timeline: "Jan 2025 — Apr 2025",
-    shortDescription:
-      "Real-time economic sentiment pipeline ingesting live financial news and regulatory filings, extracting contextual polarity against market ticker trends.",
-    longDescription:
-      "MarketMood AI is an automated sentiment intelligence platform for financial markets. It continuously scrapes, filters, and analyzes breaking headlines, earnings call transcripts, and macroeconomic indicators. Using FinBERT (a BERT model fine-tuned on financial language), it scores contextual bullish/bearish polarity, calculates rolling sentiment volatility indices, and visualizes sentiment shifts against intraday stock price movements.",
-    problemStatement:
-      "Retail and institutional traders struggle to filter through thousands of financial articles published every hour. Generic sentiment models fail on financial jargon—for example, treating 'interest rates dropped' or 'unemployment fell' with incorrect or reversed sentiment polarity.",
-    architectureSummary:
-      "Automated event-driven ingestion workers polling RSS feeds and financial news APIs. Articles are sanitized, deduplicated via MinHash, and routed through a GPU-accelerated FinBERT inference worker that assigns categorical confidence scores (-1.0 to +1.0) and persists them in a Redis time-series database for instant Next.js visualization.",
-    architectureNodes: [
-      {
-        title: "News & Wire Aggregator",
-        description:
-          "Automated crawlers ingesting financial RSS feeds, SEC filings, and press releases with MinHash deduplication.",
-      },
-      {
-        title: "NLP Sentiment Pipeline",
-        description:
-          "FinBERT transformer scoring positive, negative, and neutral sentiment polarity with financial context.",
-      },
-      {
-        title: "Time-Series Aggregator",
-        description:
-          "Rolling exponential moving averages (1h, 12h, 24h) and ticker correlation indexing in Redis.",
-      },
-      {
-        title: "Editorial Market Terminal",
-        description:
-          "Next.js dashboard with interactive divergence charts comparing price actions against sentiment shifts.",
-      },
-    ],
-    keyDecisions: [
-      {
-        title: "FinBERT Domain Specialization",
-        rationale:
-          "Standard sentiment dictionaries like VADER misclassify financial vocabulary (e.g. 'crude', 'short', 'liabilities'); FinBERT provides 34% higher domain classification accuracy.",
-      },
-      {
-        title: "MinHash Article Deduplication",
-        rationale:
-          "Wire syndication creates dozens of identical articles across outlets; MinHash prevents duplicate headlines from disproportionately skewing the sentiment score.",
-      },
-    ],
-    challenges: [
-      "High-volume headline bursts during opening bell hours: implemented a Celery worker queue with Redis caching to smooth out peak ingestion spikes without dropping real-time updates.",
-      "Detecting nuance in management statements: added entity recognition (NER) to ensure sentiment was attributed specifically to the subject company rather than a competitor mentioned in the article.",
+      "Handling scanned and low-contrast lecture slide PDFs: integrated Gemini's multimodal OCR vision endpoints to extract equations, diagrams, and tables accurately where traditional PDF text extractors failed.",
+      "Maintaining low-latency vector similarity queries under growing note collections: configured pgvector HNSW index parameters (m=16, ef_construction=64) to maintain sub-50ms query times.",
     ],
     technologies: [
       "Next.js",
-      "Python",
-      "FinBERT",
-      "Hugging Face",
-      "Redis",
-      "FastAPI",
-      "Tailwind CSS",
+      "React",
       "TypeScript",
+      "Supabase",
+      "PostgreSQL",
+      "pgvector",
+      "Gemini AI API",
+      "Tailwind CSS",
     ],
     metricsOrHighlights: [
-      { label: "NLP Accuracy", value: "88.6% Financial Polarity" },
-      { label: "Processing Speed", value: "< 250ms per Article" },
-      { label: "Ingestion Scale", value: "5,000+ Headlines/Day" },
-      { label: "Deduplication", value: "MinHash Jaccard 0.8" },
+      { label: "Vector Dimensions", value: "768-dim Embeddings" },
+      { label: "Indexing Type", value: "pgvector HNSW" },
+      { label: "Cache Optimization", value: "SHA-256 Hash Lookup" },
+      { label: "Supported Formats", value: "PDF, DOCX, PPTX, TXT" },
     ],
-    githubUrl: "https://github.com/SiddheshCodes4554/MarketMood-AI",
-    schematicType: "market-sentiment",
-
-    heroImage: "/projects/marketmood-terminal.jpg",
-    thumbnailImage: "/projects/marketmood-terminal.jpg",
-    actionVerbs: ["SENTIMENT", "PREDICT", "VISUALIZE"],
-    handwrittenAnnotation: "Decoding the pulse of the market.",
-
-    caseStudy: {
-      overview: {
-        headline: "Overview",
-        annotation: "{ News to Predictive Alpha.",
-        summary:
-          "MarketMood AI bridges the gap between breaking financial news commentary and intraday market prices. By running domain-specific FinBERT models across wire releases, it visualizes rolling sentiment polarity versus asset price action.",
-        imageCaption: "REAL-TIME MARKET SENTIMENT TERMINAL.",
-        keyFeatures: [
-          "FinBERT financial polarity scoring",
-          "Automated wire news ingestion & deduplication",
-          "Rolling sentiment volatility indices",
-          "Divergence visualization between sentiment and price",
-        ],
-        myRole:
-          "Tuned FinBERT inference pipeline, built deduplication filters, and developed the Next.js dark-mode terminal.",
-        roleTags: ["FinBERT", "Hugging Face", "FastAPI", "Redis", "Next.js", "TypeScript"],
-      },
-      problem: {
-        title: "The Problem",
-        subtitle: "Information Overload & Lexical Ambiguity",
-        content:
-          "Financial syntax is unique: phrases like 'bearish breakout' or 'rate cut' require deep economic context that generic sentiment models misclassify.",
-        bullets: [
-          "Syndicated wire reprints distort volume weighting.",
-          "Generic LLMs are too slow for real-time news burst analysis.",
-          "Lack of temporal alignment between article timestamps and stock price ticks.",
-        ],
-      },
-      solution: {
-        title: "The Solution",
-        subtitle: "GPU-Accelerated FinBERT & Redis TimeSeries",
-        content:
-          "A streaming pipeline that deduplicates articles within 50ms, evaluates sentiment polarity in 200ms, and updates live divergence graphs.",
-        bullets: [
-          "Domain-specialized transformer fine-tuned on financial transcripts.",
-          "Rolling 12-hour exponential moving sentiment averages.",
-          "Interactive correlation charts revealing sentiment-led price movements.",
-        ],
-      },
-      architecture: {
-        title: "System Architecture",
-        subtitle: "Event-Driven Ingestion to Reactive UI",
-        content:
-          "Crawlers push raw articles to Redis streams; background Celery workers run FinBERT inference; aggregates are pushed to the frontend via WebSockets.",
-        bullets: [
-          "Crawler: Async HTTP scraping of RSS and SEC press releases.",
-          "Worker: PyTorch FinBERT batch tokenizer and classifier.",
-          "Frontend: Next.js with SVG interactive time-series canvas.",
-        ],
-      },
-      techStack: {
-        title: "Technologies & Frameworks",
-        subtitle: "Modern FinTech & NLP Architecture",
-        description: "High-throughput asynchronous Python and reactive TypeScript frontend.",
-        categories: [
-          { name: "NLP & AI", items: ["Python", "FinBERT", "Hugging Face", "PyTorch"] },
-          { name: "Data & Caching", items: ["Redis TimeSeries", "Celery", "PostgreSQL"] },
-          { name: "Frontend", items: ["Next.js", "TypeScript", "Tailwind CSS"] },
-        ],
-      },
-      results: {
-        title: "Results & Learnings",
-        subtitle: "Demonstrated Sentiment Correlation",
-        content:
-          "Achieved 88.6% classification accuracy on benchmark financial datasets and handled opening bell volume bursts without dropped packets.",
-        bullets: [
-          "Indexed over 5,000 headlines daily with zero latency bottlenecks.",
-          "Identified actionable sentiment divergence leads across key tech sector stocks.",
-        ],
-      },
-    },
-  },
-  {
-    id: "filesense",
-    index: "04",
-    title: "FileSense",
-    subtitle: "AI-Powered Document Understanding & Knowledge Retrieval",
-    category: "AI & Semantic Search",
-    tagsLine: "AI / KNOWLEDGE / SEMANTIC SEARCH",
-    year: "2024",
-    role: "Developer & Systems Designer",
-    timeline: "Aug 2024 — Dec 2024",
-    shortDescription:
-      "AI-driven document understanding and question-answering system providing ground-truth citation search across dense technical files and PDFs.",
-    longDescription:
-      "FileSense is a local-first semantic document exploration platform designed for researchers and technical teams. It ingests complex multi-page PDFs, research papers, and technical specifications, converting unstructured text and nested tables into semantic vector representations. Users can query their document corpus in natural language, receiving precise answers backed by exact page and sentence citations with zero data leakage to external clouds.",
-    problemStatement:
-      "Knowledge workers spend hours manually hunting for specific clauses, technical figures, and citations inside hundreds of pages of documentation. Standard keyword search fails when phrasing differs, while public LLMs create security compliance risks for confidential internal files.",
-    architectureSummary:
-      "Document parsing engine using layout-aware chunking heuristics. High-dimensional vector embeddings are stored in FAISS local vector indices. A hybrid retrieval pipeline combines dense vector similarity with sparse BM25 keyword matching, feeding a local quantized LLM for grounded contextual generation.",
-    architectureNodes: [
-      {
-        title: "Layout-Aware Parser",
-        description:
-          "PDF text layer extraction with OCR fallback, preserving structural headers, lists, and tables.",
-      },
-      {
-        title: "Hybrid Indexing Engine",
-        description:
-          "Dual-index architecture: FAISS vector embeddings for semantic search + BM25 for exact part numbers.",
-      },
-      {
-        title: "Context Reranker",
-        description:
-          "Cross-encoder scoring retrieved text snippets to prioritize the top 5 most relevant document paragraphs.",
-      },
-      {
-        title: "Grounded Q&A Interface",
-        description:
-          "Citation-first UI displaying exact document page previews, highlighted text spans, and confidence tags.",
-      },
-    ],
-    keyDecisions: [
-      {
-        title: "Hybrid Search (Dense + Sparse BM25)",
-        rationale:
-          "Pure vector search misses specific alphanumeric serials and exact acronyms; hybrid retrieval guarantees 100% recall on technical part codes while retaining semantic understanding.",
-      },
-      {
-        title: "Deterministic Citation Linking",
-        rationale:
-          "Every generated paragraph includes a direct clickable citation that scrolls the PDF viewer directly to the source page and bounding box.",
-      },
-    ],
-    challenges: [
-      "Preserving tabular integrity in complex multi-column layouts: created a custom table detection heuristic that translates PDF coordinate streams into clean markdown table representations before chunking.",
-      "Constrained local RAM during vector lookups: quantized vector embeddings to 8-bit precision, reducing index memory consumption by 65% with negligible retrieval degradation.",
-    ],
-    technologies: [
-      "Python",
-      "LangChain",
-      "FAISS",
-      "FastAPI",
-      "Next.js",
-      "TypeScript",
-      "Tailwind CSS",
-      "PDF.js",
-    ],
-    metricsOrHighlights: [
-      { label: "Retrieval Method", value: "Hybrid (BM25 + FAISS)" },
-      { label: "Memory Footprint", value: "< 500MB Index RAM" },
-      { label: "Citation Precision", value: "100% Grounded Spans" },
-      { label: "Privacy Model", value: "Local-First / Zero Cloud" },
-    ],
-    githubUrl: "https://github.com/SiddheshCodes4554/FileSense",
+    githubUrl: "https://github.com/SiddheshCodes4554/CampusOS",
     schematicType: "filesense-rag",
 
-    heroImage: "/projects/filesense-document.jpg",
-    thumbnailImage: "/projects/filesense-document.jpg",
-    actionVerbs: ["UNDERSTAND", "SEARCH", "ORGANIZE"],
-    handwrittenAnnotation: "Zero-hallucination semantic citations.",
+    heroImage: "/projects/campusos-dashboard.png",
+    thumbnailImage: "/projects/campusos-dashboard.png",
+    detailImage: "/projects/campusos-analysis.png",
+    actionVerbs: ["INGEST", "EMBED", "ORGANIZE"],
+    handwrittenAnnotation: "Cognitive twin for student success.",
 
     caseStudy: {
       overview: {
         headline: "Overview",
-        annotation: "{ Provable Ground Truth.",
+        annotation: "{ Unifying Student Knowledge.",
         summary:
-          "FileSense is a privacy-first document exploration system that enables users to query complex technical manuals, PDFs, and scientific papers with natural language. Every generated answer includes direct clickable references to exact document pages and highlighted sentences.",
-        imageCaption: "LOCAL-FIRST SEMANTIC CITATION ENGINE.",
+          "CampusOS centralizes scattered academic materials into an AI-powered command center. Utilizing Supabase pgvector and Gemini multimodal parsing, it transforms static lecture notes into an interactive knowledge graph, personalized study schedules, and grounded exam preparation guides.",
+        imageCaption: "CAMPUSOS MULTIMODAL ACADEMIC BRAIN.",
         keyFeatures: [
-          "Hybrid dense vector + sparse BM25 retrieval",
-          "Layout-aware multi-column PDF parser",
-          "Deterministic page citation linking",
-          "Air-gapped local execution with zero cloud egress",
+          "Academic Brain document ingestion with multimodal OCR (PDF, DOCX, PPTX)",
+          "Supabase PostgreSQL pgvector search with HNSW accelerated indexing",
+          "Digital Twin Memory Console modeling student strengths and study habits",
+          "Grounded Smart Notes generating verifiable study guides and quizzes with citations",
         ],
         myRole:
-          "Engineered the hybrid retrieval pipeline, built layout extraction algorithms, and designed the citation viewer interface.",
-        roleTags: ["FAISS", "LangChain", "FastAPI", "PDF.js", "Next.js", "TypeScript"],
+          "Architected the database schema, built the vector ingestion and SHA-256 embedding reuse pipeline, and developed the frontend command center modules.",
+        roleTags: [
+          "Supabase",
+          "pgvector",
+          "Gemini API",
+          "Next.js",
+          "TypeScript",
+          "RAG Architecture",
+        ],
       },
       problem: {
         title: "The Problem",
-        subtitle: "Document Hallucination & Security Leaks",
+        subtitle: "Fragmented Tools & Context-Blind Study Workflows",
         content:
-          "Public cloud LLMs frequently hallucinate facts and violate compliance when processing proprietary or confidential internal documents.",
+          "University students frequently juggle five or more disconnected applications: Notion for notes, Google Drive for PDFs, Anki for flashcards, and generic ChatGPT windows for homework help. This fragmentation causes cognitive overload and forces AI models to answer questions without access to course-specific syllabi or past notes.",
         bullets: [
-          "Engineers spend hours hunting for specific part codes and tolerances in 500-page manuals.",
-          "Dense tables and multi-column layouts get mangled by basic text scrapers.",
-          "Enterprises cannot upload confidential engineering specs to public LLM endpoints.",
+          "Syllabi, lecture slides, and personal notes are isolated across multiple cloud drives.",
+          "Standard LLM assistants hallucinate out-of-syllabus answers without verifiable citations.",
+          "Students waste hours manually compiling flashcards and exam study schedules.",
+          "No existing platform models the student's cognitive study habits or tracks topic mastery over time.",
         ],
       },
       solution: {
         title: "The Solution",
-        subtitle: "Air-Gapped Hybrid Retrieval with Grounded References",
+        subtitle: "Unified Cognitive Workspace with Data-Grounded RAG",
         content:
-          "FileSense parses documents locally, generates quantized embeddings stored in FAISS, and verifies answer spans with cross-encoders before display.",
+          "CampusOS brings all academic inputs into one intelligent cockpit. Documents uploaded to the Academic Brain are vectorized and connected into a relational knowledge graph. When students generate study materials or consult the Copilot, responses are strictly grounded in their uploaded course content with direct paragraph footnotes.",
         bullets: [
-          "Hybrid search ensuring exact part code recall alongside semantic concepts.",
-          "Every claim is highlighted directly on the rendered PDF canvas.",
-          "Runs 100% locally on standard workstation hardware.",
+          "Single document repository supporting lecture slides, scanned papers, and notes.",
+          "Automated conversion of materials into flashcards, 5-question quizzes, and exam prep outlines.",
+          "SHA-256 embedding caching preventing costly redundant vector API calls.",
+          "Personalized Digital Twin that analyzes quiz history to proactively recommend focus areas.",
         ],
       },
       architecture: {
         title: "System Architecture",
-        subtitle: "Local Document Pipeline to Visual Verification",
+        subtitle: "PostgreSQL pgvector Core with Knowledge Graph Relations",
         content:
-          "PDF pages are converted into structured markdown blocks; indexed into FAISS and BM25; queried using local quantized LLM inference.",
+          "The architecture relies on Supabase PostgreSQL as both the relational backbone and high-speed vector store. Uploaded files trigger multimodal text parsing; chunks are hashed and vectorized; vectors are indexed via pgvector HNSW; knowledge nodes and edges map conceptual prerequisites.",
         bullets: [
-          "Ingestion: Layout-aware spatial text tokenizer preserving headers and tables.",
-          "Retrieval: Reciprocal Rank Fusion (RRF) combining dense and sparse results.",
-          "Viewer: PDF.js canvas with coordinate bounding box highlights.",
+          "Ingestion Layer: Next.js API routes routing files to Gemini multimodal endpoints.",
+          "Storage Layer: Supabase PostgreSQL tables (documents, knowledge_nodes, knowledge_edges, study_notes).",
+          "Vector Engine: pgvector with cosine distance operator (<=>) and HNSW index tuning.",
+          "Application Layer: React Server Components and client hooks managing real-time student state.",
         ],
       },
       techStack: {
         title: "Technologies & Frameworks",
-        subtitle: "Lightweight, Privacy-Focused AI Stack",
-        description: "Modern local vector search and type-safe frontend components.",
+        subtitle: "Verified Codebase Architecture",
+        description:
+          "Verified directly against CampusOS repository implementation files and documentation.",
         categories: [
-          { name: "Vector & Search", items: ["Python", "FAISS", "BM25", "LangChain"] },
-          { name: "Backend", items: ["FastAPI", "Uvicorn", "PDFMiner"] },
-          { name: "Frontend", items: ["Next.js", "TypeScript", "PDF.js", "Tailwind CSS"] },
+          {
+            name: "Database & Vector",
+            items: ["Supabase", "PostgreSQL", "pgvector (HNSW)", "SHA-256 Caching"],
+          },
+          {
+            name: "AI & Parsing",
+            items: ["Gemini 1.5 Flash / Pro", "Multimodal OCR", "Text Chunking Heuristics"],
+          },
+          {
+            name: "Frontend Cockpit",
+            items: ["Next.js App Router", "React 18", "TypeScript", "Tailwind CSS", "Lucide React"],
+          },
         ],
       },
       results: {
         title: "Results & Learnings",
-        subtitle: "Accurate Retrieval with Low Memory Footprint",
+        subtitle: "Implementation Verification & System Boundaries",
         content:
-          "Reduced document search times by 80% while keeping memory consumption under 500MB on local developer laptops.",
+          "CampusOS validated that coupling vector similarity with relational knowledge graphs drastically reduces AI hallucination in academic contexts. Testing confirmed robust document parsing and instant citation retrieval.",
         bullets: [
-          "Achieved 100% provable citation attribution on technical test corpora.",
-          "Preserved table alignment across complex academic two-column papers.",
+          "Demonstrated sub-50ms vector retrieval across document collections using HNSW indexing.",
+          "Verified embedding reuse layer eliminating duplicate API costs on re-indexed documents.",
+          "Strict Engineering Clarity: The Digital Twin reflects recorded user quiz activity and study logs; it does not claim autonomous cognitive sentience or guaranteed GPA outcomes.",
+          "Document parsing accuracy depends on source scan clarity; high-resolution vector PDFs perform best.",
         ],
       },
     },
   },
+
+  // =========================================================================
+  // 03. CardioShield — Multimodal Cardiovascular Intelligence System
+  // =========================================================================
   {
-    id: "personal-finance-tracker",
-    index: "05",
-    title: "Personal Finance",
-    subtitle: "Granular Wealth Analytics & Cashflow Visualization",
-    category: "Full Stack & FinTech",
-    tagsLine: "FULL STACK / SECURITY / DATA SYSTEMS",
+    id: "cardioshield",
+    index: "03",
+    title: "CardioShield",
+    subtitle: "Multimodal Cardiovascular Intelligence System",
+    category: "AI & Healthcare Analytics",
+    tagsLine: "LIGHTGBM / AUTOENCODER / ECG RECONSTRUCTION / STREAMLIT",
     year: "2024",
-    role: "Frontend & Full-Stack Engineer",
-    timeline: "Mar 2024 — Jul 2024",
+    role: "ML Engineer & Streamlit Developer",
+    timeline: "Byte 2 Beat — Hack4Health Hackathon 2024",
     shortDescription:
-      "Privacy-focused financial dashboard with interactive cashflow breakdown, custom category budgeting, and predictive savings trajectories.",
+      "A multimodal cardiovascular risk analysis prototype combining clinical biomarker classification with autoencoder-based ECG signal anomaly detection.",
     longDescription:
-      "A minimalist, client-side encrypted personal finance tracker designed to replace bloated commercial financial apps. Features custom category allocation, monthly cashflow velocity charts, recurring subscription audits, and savings projections. Built with zero tracking cookies or external ad scripts, storing all financial entries securely in the user's browser using local cryptographic keys.",
+      "CardioShield is an experimental machine learning healthcare prototype engineered for the Byte 2 Beat — Hack4Health Hackathon. The system addresses cardiovascular disease risk by combining static clinical health records with dynamic electrophysiological signals. Built with Streamlit, CardioShield runs a LightGBM clinical classifier (cardio_model_A.pkl) on 11 patient biomarkers while feeding 500-sample ECG windows into a 1D Convolutional Autoencoder (ecg_autoencoder.h5) to calculate reconstruction-error anomaly scores.",
     problemStatement:
-      "Modern financial apps require users to link personal bank credentials to third-party data aggregators, sell user transaction histories, and clutter interfaces with credit card promotions. Users want a clean, honest, tactile tool to understand their spending habits with complete privacy.",
+      "Cardiovascular disease remains the leading cause of global mortality. Most diagnostic tools rely either exclusively on static tabular health surveys (missing acute cardiac rhythm abnormalities) or exclusively on complex ECG monitors (lacking demographic risk context). Developing an interpretable, accessible interface that fuses both signal modalities is an engineering challenge.",
     architectureSummary:
-      "Local-first client application with client-side AES-GCM encryption. Transaction datasets are indexed in browser IndexedDB. Lightweight custom SVG charting algorithms compute monthly rolling trends, expense categories, and runway simulations with instantaneous render speeds.",
+      "Dual-model pipeline running inside Streamlit (app.py). Left panel processes 11 clinical features (age, gender, height, weight, BP, cholesterol, glucose, lifestyle factors) through joblib-loaded model_A to output a probability score. Right panel takes uploaded ECG CSV files, applies pad_ecg to match scaler dimensions, scales via ecg_scaler.pkl, segments into 500-sample windows, and runs the Keras autoencoder to measure Mean Squared Error (MSE). Outputs are synthesized into a 50/50 Fusion Risk Index.",
+    verificationStatus: "verified-in-code",
+    systemStatusNote:
+      "Verified in repository: app.py, cardio_model_A.pkl, ecg_autoencoder.h5, and ecg_scaler.pkl. Experimental hackathon prototype: CardioShield is an analytical research tool, NOT a clinically certified diagnostic device. It does not replace medical consultation.",
     architectureNodes: [
       {
-        title: "Local Crypto Vault",
+        title: "Clinical Classifier",
         description:
-          "Browser Web Cryptography API encrypting transaction stores with client-derived PBKDF2 keys.",
+          "LightGBM / Gradient Boosting model (cardio_model_A.pkl) generating probability scores across 11 tabular patient biomarkers.",
       },
       {
-        title: "Statement Normalizer",
+        title: "Signal Preprocessing & Padder",
         description:
-          "Heuristic CSV parser mapping disparate banking transaction formats into a normalized schema.",
+          "Custom pad_ecg routine normalizing varying ECG CSV column dimensions to match scaler.n_features_in_ before standard scaling.",
       },
       {
-        title: "Tactile Charting Engine",
+        title: "1D Conv Autoencoder",
         description:
-          "Handcrafted SVG line curves and area fills with interactive hover scrubbers and zero library overhead.",
+          "Keras neural network (ecg_autoencoder.h5) evaluating 500-sample segmented ECG windows to identify reconstruction discrepancies.",
       },
       {
-        title: "Predictive Runway Model",
+        title: "Multimodal Fusion Engine",
         description:
-          "Calculates variable burn rates, fixed subscription obligations, and projected year-end net savings.",
+          "Heuristic fusion combining clinical probability and mean squared reconstruction error into a unified composite risk index.",
       },
     ],
     keyDecisions: [
       {
-        title: "Zero Third-Party Charting Libraries",
+        title: "Autoencoder Reconstruction Loss for Unsupervised Anomaly Detection",
         rationale:
-          "Implemented native SVG data curves directly in React. Reduced bundle size by 140KB and achieved pixel-perfect alignment with the site's editorial hairline aesthetic.",
+          "Trained an autoencoder exclusively on normal cardiac sinus rhythms. When abnormal waveforms (arrhythmias, ischemic changes) are presented, the model fails to reconstruct them cleanly, generating a quantifiable Mean Squared Error (MSE) anomaly signal without requiring exhaustively labeled rare anomaly classes.",
       },
       {
-        title: "Client-Side IndexedDB Storage",
+        title: "Dynamic Signal Padding Before Normalization",
         rationale:
-          "Financial records never leave the user's device, ensuring absolute confidentiality without recurring server hosting overhead.",
+          "ECG CSV files from different recording devices have varying column lengths; implemented pad_ecg to zero-pad arrays to scaler.n_features_in_, preventing shape mismatch errors during inference.",
+      },
+      {
+        title: "Visual Anomaly Heatmap with Matplotlib",
+        rationale:
+          "Rendered an error heatmap abs(original - reconstructed) with matplotlib 'hot' colormap directly below the dual-trace waveform plot, allowing users to visually pinpoint exactly which portion of the QRS wave exhibited abnormal error.",
       },
     ],
     challenges: [
-      "Inconsistent bank statement CSV exports: built an interactive column-mapping modal that intelligently predicts date, amount, vendor, and category fields with auto-learning regex rules.",
-      "Smooth rendering of multi-year transaction timelines: created virtualized list scrolling with memoized aggregations, maintaining 60FPS fluid navigation across 10,000+ entries.",
+      "Input shape misalignment between external ECG CSV files and pre-trained model input layers: resolved via automatic segmentation into 500-timestep windows reshaped to (batch, 500, 1).",
+      "Balancing clinical probability (0.0 to 1.0) with raw MSE values: normalized the autoencoder reconstruction loss to formulate a stable composite risk metric.",
     ],
     technologies: [
-      "React",
-      "Next.js",
-      "TypeScript",
-      "Tailwind CSS",
-      "IndexedDB",
-      "Web Cryptography API",
-      "SVG",
+      "Python",
+      "Streamlit",
+      "TensorFlow / Keras",
+      "LightGBM",
+      "Scikit-Learn",
+      "Pandas",
+      "NumPy",
+      "Matplotlib",
     ],
     metricsOrHighlights: [
-      { label: "Bundle Size Overhead", value: "Zero Heavy Chart Libs" },
-      { label: "Data Storage", value: "Local-First IndexedDB" },
-      { label: "Encryption", value: "AES-256-GCM" },
-      { label: "Performance", value: "60 FPS Virtualized" },
+      { label: "Model A (Clinical)", value: "Gradient Boosted Classifier" },
+      { label: "Model B (ECG)", value: "Keras 1D Autoencoder" },
+      { label: "ECG Window Size", value: "500 Timestep Segments" },
+      { label: "Hackathon Event", value: "Byte 2 Beat — Hack4Health" },
     ],
-    githubUrl: "https://github.com/SiddheshCodes4554/Personal-Finance-Tracker",
-    schematicType: "finance-ledger",
+    githubUrl: "https://github.com/SiddheshCodes4554/CardioShield",
+    schematicType: "drishti-vision",
 
-    heroImage: "/projects/finance-tracker.jpg",
-    thumbnailImage: "/projects/finance-tracker.jpg",
-    actionVerbs: ["TRACK", "VISUALIZE", "PLAN"],
-    handwrittenAnnotation: "Privacy-first financial clarity.",
+    heroImage: "/projects/cardioshield-dashboard.jpg",
+    thumbnailImage: "/projects/cardioshield-dashboard.jpg",
+    detailImage: "/projects/cardioshield-dashboard.jpg",
+    actionVerbs: ["ANALYZE", "RECONSTRUCT", "PREVENT"],
+    handwrittenAnnotation: "Multimodal AI for cardiac screening.",
 
     caseStudy: {
       overview: {
         headline: "Overview",
-        annotation: "{ Honest Personal Wealth Tracking.",
+        annotation: "{ Clinical & Signal Fusion.",
         summary:
-          "A tactile, editorial wealth management web dashboard built for individuals who demand complete financial privacy. Offers interactive expenditure velocity graphs, recurring subscription auditing, and predictive savings trajectories without external trackers or cloud databases.",
-        imageCaption: "CLIENT-ENCRYPTED WEALTH ANALYTICS.",
+          "CardioShield is an AI-powered cardiovascular screening prototype developed for the Byte 2 Beat — Hack4Health Hackathon. It bridges clinical patient records with raw ECG waveform analysis into an interpretable Streamlit dashboard, generating both tabular risk scores and visual signal reconstruction error heatmaps.",
+        imageCaption: "STREAMLIT CLINICAL & ECG FUSION INTERFACE.",
         keyFeatures: [
-          "Zero cloud data egress with client-side AES-256-GCM encryption",
-          "Handcrafted SVG data charts with zero heavy library overhead",
-          "Automated bank statement CSV column normalizer",
-          "Predictive financial runway and burn-rate modeling",
+          "Dual-modality assessment combining 11 patient biomarkers with raw ECG signals",
+          "Keras 1D Convolutional Autoencoder evaluating ECG reconstruction anomaly loss",
+          "Dual-trace waveform overlay comparing original versus autoencoder reconstructed signal",
+          "Visual anomaly heatmap highlighting abnormal wave segments with high error",
         ],
         myRole:
-          "Built full-stack architecture, encrypted client storage vault, and bespoke SVG charting modules.",
-        roleTags: ["React", "Next.js", "TypeScript", "IndexedDB", "WebCrypto", "SVG"],
+          "Built the Streamlit application pipeline, integrated the serialized LightGBM and Keras models, and engineered the ECG signal padding and visualization routines.",
+        roleTags: [
+          "Python",
+          "Streamlit",
+          "TensorFlow",
+          "Keras",
+          "Scikit-Learn",
+          "ECG Processing",
+        ],
       },
       problem: {
         title: "The Problem",
-        subtitle: "Monetized User Data & Bloated Banking Apps",
+        subtitle: "Isolated Diagnostic Data & Complex ECG Interpretation",
         content:
-          "Mainstream financial applications demand linked banking credentials, sell aggregated transaction metrics to advertisers, and suffer from sluggish, ad-laden interfaces.",
+          "Traditional cardiovascular evaluations are fragmented. In primary care, clinicians often rely on basic blood pressure and cholesterol numbers, missing early subclinical electrophysiological anomalies. Conversely, reading raw 12-lead ECG strips requires specialized cardiology training, creating delays in high-volume screening clinics.",
         bullets: [
-          "Commercial apps harvest user spending habits for targeted credit card marketing.",
-          "Heavy charting libraries introduce significant page bloat and lag.",
-          "Rigid category structures make custom expenditure auditing frustrating.",
+          "Static biomarker surveys do not capture real-time rhythm or conduction anomalies.",
+          "Manual ECG waveform inspection is time-consuming and subjective in triage settings.",
+          "Lack of unified tools that fuse clinical demographic factors with electrical cardiac signals.",
+          "Need for transparent visual explanations rather than black-box prediction percentages.",
         ],
       },
       solution: {
         title: "The Solution",
-        subtitle: "Local-First Cryptographic Vault & Native SVG Curves",
+        subtitle: "Autoencoder Reconstruction Loss with Dual-Trace Explanations",
         content:
-          "All financial transactions are stored exclusively inside the browser's IndexedDB, secured via PBKDF2-derived encryption keys. Bespoke SVG rendering provides instant 60FPS interactivity.",
+          "CardioShield implements a two-pronged approach. The user inputs standard patient biomarkers on the left panel to produce a clinical risk probability. On the right, an uploaded ECG CSV file is segmented and passed through a pre-trained autoencoder. Normal beats are reconstructed accurately; abnormal beats generate high reconstruction errors displayed visually as a dual-trace plot and thermal heatmap.",
         bullets: [
-          "User maintains 100% sovereignty over personal financial records.",
-          "Instantaneous load times with zero third-party telemetry scripts.",
-          "Customizable budgeting envelope allocations with visual runway meters.",
+          "LightGBM tabular classifier evaluating 11 standard cardiovascular risk factors.",
+          "Unsupervised autoencoder anomaly detection requiring no manual arrhythmia labeling.",
+          "Visual side-by-side comparison of original heart rhythm versus reconstructed signal.",
+          "Matplotlib thermal error heatmap pinpointing exact localized signal irregularities.",
         ],
       },
       architecture: {
         title: "System Architecture",
-        subtitle: "Client-Side Cryptographic Data Flow",
+        subtitle: "Multimodal Streamlit Data Flow",
         content:
-          "Transaction CSVs are normalized in-memory; encrypted with Web Crypto API; persisted into IndexedDB; fed into memoized SVG curves.",
+          "The architecture runs within a unified Streamlit runtime (app.py) using st.cache_resource for fast model persistence. Models (cardio_model_A.pkl, ecg_autoencoder.h5, ecg_scaler.pkl) are loaded into memory once. When inputs are triggered, data flows through normalization and inference workers in parallel before composite scoring.",
         bullets: [
-          "Parser: Client-side CSV tokenizer with auto-detect regex rules.",
-          "Security: PBKDF2 key derivation and AES-GCM 256-bit encryption.",
-          "Visuals: React SVG path generators computing Bezier splines dynamically.",
+          "Model Caching: Streamlit cache decorator loading joblib and Keras models in memory.",
+          "Preprocessing: Dimension padding via pad_ecg followed by StandardScaler transformation.",
+          "Signal Windowing: Time-series slicing into 500-sample segments reshaped for 1D convolution.",
+          "Synthesis: Unified CardioShield Fusion Risk Index averaging clinical and ECG risk metrics.",
         ],
       },
       techStack: {
         title: "Technologies & Frameworks",
-        subtitle: "Lean, Secure Client-Side Architecture",
-        description: "Type-safe modern web technologies with native browser cryptographic primitives.",
+        subtitle: "Verified Repository Manifest",
+        description:
+          "Verified directly against CardioShield repository app.py and requirements.txt.",
         categories: [
-          { name: "Frontend Core", items: ["React", "Next.js", "TypeScript", "Tailwind CSS"] },
-          { name: "Security & Storage", items: ["Web Cryptography API", "IndexedDB", "AES-256-GCM"] },
-          { name: "Visualization", items: ["Native SVG", "Bezier Math", "Virtualized Lists"] },
+          {
+            name: "Machine Learning & Deep Learning",
+            items: ["TensorFlow 2.x", "Keras", "LightGBM", "Scikit-Learn", "Joblib"],
+          },
+          {
+            name: "Signal Processing & Math",
+            items: ["NumPy", "Pandas", "Matplotlib (Signal Plots)", "StandardScaler"],
+          },
+          {
+            name: "Application UI",
+            items: ["Streamlit", "Python Virtual Environment", "Matplotlib Colormaps"],
+          },
         ],
       },
       results: {
         title: "Results & Learnings",
-        subtitle: "Butter-Smooth 60FPS Performance",
+        subtitle: "Prototype Validation & Medical Disclaimers",
         content:
-          "Successfully created a robust replacement for commercial budgeting apps, achieving instant render times and complete user privacy.",
+          "CardioShield demonstrated the viability of multimodal AI risk fusion at the Byte 2 Beat Hackathon, showing that autoencoder reconstruction loss provides an intuitive visual metric for signal irregularity.",
         bullets: [
-          "Zero bundle bloat from commercial charting libraries (saved 140KB).",
-          "Virtualized tables effortlessly rendering 10,000+ historical transactions.",
+          "Successfully fused tabular health records and raw time-series ECG in an intuitive dashboard.",
+          "Interactive Matplotlib charts clearly demonstrated error spikes during simulated arrhythmias.",
+          "Crucial Medical Safety Disclaimer: CardioShield is an experimental prototype for research exploration and hackathon demonstration. It is not approved by medical regulatory bodies, does not diagnose disease, and should never replace formal clinical diagnosis.",
+          "Model performance is bounded by the hackathon training datasets; real-world clinical use requires prospective multi-center validation.",
         ],
       },
     },
   },
+
+  // =========================================================================
+  // 04. Ingress Within — Reflective Journaling & Psychoeducation Platform
+  // =========================================================================
   {
-    id: "school-erp",
-    index: "06",
-    title: "School ERP",
-    subtitle: "Academic Administration & Student Information Platform",
-    category: "EdTech & Enterprise",
-    tagsLine: "EDTECH / ENTERPRISE / FULL STACK",
+    id: "ingress-within",
+    index: "04",
+    title: "Ingress Within",
+    subtitle: "Reflective Journaling & Psychoeducation Platform",
+    category: "Full Stack & Human-Computer Interaction",
+    tagsLine: "NEXT.JS / REACT / PSYCHOEDUCATION / DATA PRIVACY",
     year: "2024",
-    role: "Full-Stack Developer",
-    timeline: "Nov 2023 — Mar 2024",
+    role: "Full-Stack Engineer & Contributor",
+    timeline: "2024 — Active",
     shortDescription:
-      "Modular enterprise platform for student admissions, timetable scheduling, attendance tracking, and examination grading.",
+      "An intelligent self-exploration and psychoeducational web platform designed to help users reflect on experiences, recognize recurring patterns, and expand emotional vocabulary.",
     longDescription:
-      "A comprehensive institutional management system tailored for secondary schools and academic institutions. Streamlines administrative workflows by consolidating student admissions, faculty timetable schedules, attendance tracking, report card generation, and fee management into a unified, role-based web interface.",
+      "Ingress Within is a thoughtful digital sanctuary designed around the philosophy that self-reflection becomes transformative when experiences are observed, connected, and revisited over time. Guided by a continuous reflective cadence—Reflect → Explore → Notice → Understand → Return & Continue—the platform provides a distraction-free space for open journaling, structured cognitive exercises (Cost-Benefit Audits, Avoidance Audits, Trigger Mapping), and a personalized Knowledge Hub that builds an evolving emotional vocabulary without rigid diagnostic labels.",
     problemStatement:
-      "Schools frequently rely on disconnected legacy spreadsheets, paper attendance registers, and disparate billing systems. Administrative staff lose countless hours reconciling grades, fee statuses, and parent communication across fragmented software tools.",
+      "Modern life moves too quickly to notice subtle personal rhythms: the defenses relied on, the words habitually avoided, and recurring interpersonal dynamics. Generic journaling apps act as passive text dumps without insights, while intrusive wellness apps often impose pathologizing diagnostic categories that cause anxiety rather than understanding.",
     architectureSummary:
-      "Multi-tier relational architecture powered by Next.js, Node.js, and PostgreSQL. Strict Role-Based Access Control (RBAC) middleware guarantees security between student, teacher, accountant, and super-administrator portals with automated PDF document synthesis for transcripts and fee receipts.",
+      "Production web application built on Next.js, React, and TypeScript. Implements distraction-free writing environments, structured prompt engines, secure user authentication, and persistent emotional vocabulary repositories. Grounded in evidence-informed psychoeducational frameworks and sensitive privacy boundaries.",
+    verificationStatus: "verified-in-code",
+    systemStatusNote:
+      "Verified against canonical repository backend-ingress-within/Ingress-Within-Main and live product site ingresswithin.com. Mental Health Safety Disclaimer: Ingress Within is a psychoeducational and self-reflection platform; it is not a substitute for clinical therapy, medical diagnosis, or emergency mental healthcare.",
     architectureNodes: [
       {
-        title: "Role-Based Auth Gate",
+        title: "Reflective Journaling Canvas",
         description:
-          "JWT session management with strict middleware permissions isolating student, teacher, and admin routes.",
+          "Distraction-free rich text editor supporting open writing and guided reflective threads with chronological preservation.",
       },
       {
-        title: "Relational Data Core",
+        title: "Pattern Observation Engine",
         description:
-          "PostgreSQL schema with normalized tables for enrollments, courses, schedules, and financial ledgers.",
+          "Surfaces recurring behavioral habits, cognitive avoidance patterns, and emotional themes across multi-week cycles without diagnostic labeling.",
       },
       {
-        title: "Document Generator",
+        title: "Knowledge Hub & Lexicon",
         description:
-          "Serverless PDF rendering engine compiling official grade report cards, certificates, and tax invoices.",
+          "Personalized emotional vocabulary repository connecting subjective feelings with structured psychoeducational concepts.",
       },
       {
-        title: "Administrative Console",
+        title: "Guided Exercise Workflows",
         description:
-          "Real-time dashboard monitoring institutional attendance rates, fee collection metrics, and class quotas.",
+          "Structured interactive cognitive frameworks including Cost-Benefit Audits, Avoidance Audits, and Trigger Mapping.",
       },
     ],
     keyDecisions: [
       {
-        title: "Strict Database Transaction Boundaries",
+        title: "Non-Pathologizing Reflective Cadence",
         rationale:
-          "Wrapped fee payment logging and enrollment capacity checks in atomic SQL transactions with row-level locks to prevent double-booking.",
+          "Designed all user interactions around a gentle 5-stage loop (Reflect → Explore → Notice → Understand → Return & Continue). Explicitly rejected psychiatric diagnoses or rigid scoring in favor of curiosity-driven observations.",
       },
       {
-        title: "Server-Side Dynamic Report Generation",
+        title: "Strict User Privacy & Data Protection",
         rationale:
-          "Engineered high-fidelity printable PDF report cards generated on-demand via headless Chrome workers, ensuring 100% formatting consistency on all printers.",
+          "Personal journaling represents the most sensitive category of user content; enforced strict authentication gates, row-level data ownership, and zero third-party marketing script tracking.",
+      },
+      {
+        title: "Tactile Watercolor Editorial Identity",
+        rationale:
+          "Adopted a warm, calming aesthetic featuring soft watercolor washes, generous whitespace, and restrained typography to create an inviting, contemplative digital environment.",
       },
     ],
     challenges: [
-      "High peak concurrency during end-of-term grade announcements: separated read-heavy student grade queries into cached Edge routes, eliminating database connection pool exhaustion.",
-      "Complex timetable scheduling conflicts: developed a backtracking constraint-satisfaction algorithm that validates teacher availability, classroom room capacity, and subject quotas.",
+      "Designing reflective prompts that feel supportive without imitating clinical therapy: calibrated language guidelines with psychoeducational advisors to ensure prompts encourage inquiry rather than clinical evaluation.",
+      "Structuring unstructured journal prose into meaningful thematic patterns: created non-intrusive categorization tags that respect user autonomy.",
     ],
     technologies: [
       "Next.js",
+      "React",
       "TypeScript",
+      "Tailwind CSS",
       "Node.js",
       "PostgreSQL",
-      "Prisma",
-      "Tailwind CSS",
-      "PDFKit",
+      "Vercel",
     ],
     metricsOrHighlights: [
-      { label: "User Roles", value: "Admin, Teacher, Student, Accounts" },
-      { label: "Security Model", value: "Strict RBAC + Audit Logs" },
-      { label: "Database Core", value: "Normalized PostgreSQL" },
-      { label: "Document Engine", value: "Automated PDF Transcripts" },
+      { label: "Core Journey", value: "5-Stage Reflective Cadence" },
+      { label: "Canonical Source", value: "Ingress-Within-Main" },
+      { label: "Product Website", value: "ingresswithin.com" },
+      { label: "Safety Stance", value: "Non-Diagnostic / Educational" },
     ],
-    githubUrl: "https://github.com/SiddheshCodes4554/School-ERP",
-    schematicType: "school-erp",
+    githubUrl: "https://github.com/backend-ingress-within/Ingress-Within-Main",
+    canonicalRepoUrl: "https://github.com/backend-ingress-within/Ingress-Within-Main",
+    liveUrl: "https://ingresswithin.com",
+    schematicType: "market-sentiment",
 
-    heroImage: "/projects/school-erp.jpg",
-    thumbnailImage: "/projects/school-erp.jpg",
-    actionVerbs: ["MANAGE", "SIMPLIFY", "EMPOWER"],
-    handwrittenAnnotation: "Unifying institutional workflows.",
+    heroImage: "/projects/ingress-within-hero.png",
+    thumbnailImage: "/projects/ingress-within-hero.png",
+    detailImage: "/projects/ingress-within-wash.png",
+    actionVerbs: ["REFLECT", "EXPLORE", "UNDERSTAND"],
+    handwrittenAnnotation: "A space to notice what happens within.",
 
     caseStudy: {
       overview: {
         headline: "Overview",
-        annotation: "{ Cohesive Academic Infrastructure.",
+        annotation: "{ Slow Down & Notice.",
         summary:
-          "A modular academic ERP consolidating student enrollments, faculty timetable assignments, attendance registers, and dynamic grade report generation into a unified, secure web platform.",
-        imageCaption: "COMPREHENSIVE ACADEMIC ADMINISTRATION PLATFORM.",
+          "Ingress Within is an intelligent self-exploration and psychoeducational web platform designed to help users reflect on everyday experiences, recognize recurring emotional themes, and cultivate a deeper understanding of their inner world through structured exercises and an evolving personal lexicon.",
+        imageCaption: "INGRESS WITHIN PRODUCT PLATFORM (INGRESSWITHIN.COM).",
         keyFeatures: [
-          "Deterministic Role-Based Access Control (RBAC)",
-          "Atomic financial fee ledger with row-level database locks",
-          "Automated on-demand PDF report card compiler",
-          "Algorithmic timetable conflict resolution scheduler",
+          "Distraction-free reflective journaling with open writing and guided threads",
+          "Continuous reflective journey: Reflect → Explore → Notice → Understand → Return",
+          "Personal Knowledge Hub and expanding emotional vocabulary dictionary",
+          "Evidence-informed exercises: Cost-Benefit Audits, Avoidance Audits, Trigger Mapping",
         ],
         myRole:
-          "Engineered PostgreSQL database schema, RBAC authentication middleware, and server-side PDF document generation pipelines.",
-        roleTags: ["Next.js", "TypeScript", "Node.js", "PostgreSQL", "Prisma", "Tailwind CSS"],
+          "Contributed to frontend and backend platform features, interactive guided exercise workflows, and responsive interface implementations.",
+        roleTags: [
+          "Next.js",
+          "React",
+          "TypeScript",
+          "Tailwind CSS",
+          "UI/UX Design",
+          "Full Stack",
+        ],
       },
       problem: {
         title: "The Problem",
-        subtitle: "Fragmented Legacy Spreadsheets & Human Error",
+        subtitle: "Fast-Paced Living & Superficial Journaling Utilities",
         content:
-          "Secondary institutions struggle with disjointed paper registers, disconnected accounting ledgers, and chaotic manual report card compilation.",
+          "Modern daily routines often move too quickly for individuals to notice the subtle rhythms beneath their choices: the emotional defenses relied on, recurring relational triggers, and unexamined avoidance habits. Most journaling apps are passive text dumpsters, while clinical apps feel intimidating and overly medicalized.",
         bullets: [
-          "Manual grade calculations prone to calculation and transcription errors.",
-          "Double-booked classrooms and teacher schedule conflicts.",
-          "Slow manual generation of official transcripts and student receipts.",
+          "Standard note-taking apps offer no structured guidance to uncover recurring patterns.",
+          "Clinical and therapy apps can feel cold, impersonal, and overly pathologizing.",
+          "Users lack an expansive emotional vocabulary to articulate complex, nuanced internal feelings.",
+          "High friction in existing digital wellness platforms discourages long-term consistent reflection.",
         ],
       },
       solution: {
         title: "The Solution",
-        subtitle: "Normalized Relational Core with Automated Document Synthesis",
+        subtitle: "Gentle Cadence of Reflection, Pattern Observation & Vocabulary Growth",
         content:
-          "A unified PostgreSQL schema with role-isolated portals. Teachers enter grades once; transcripts and report cards are generated with pixel precision on demand.",
+          "Ingress Within provides a quiet, intentional space to observe internal experiences with curiosity rather than self-judgment. By combining open free-writing with evidence-informed exercises and a personal concept dictionary, users build self-understanding across continuous multi-week cycles.",
         bullets: [
-          "Strict separation of concerns between Admin, Faculty, Student, and Billing roles.",
-          "Instant printable PDF transcripts with cryptographically verifiable serial numbers.",
-          "Automated attendance rollups and automated absence notifications.",
+          "Focused writing canvas removing all visual distractions to foster honest reflection.",
+          "Pattern tracking helping users notice what recurring themes shift over time.",
+          "Knowledge Trail linking subjective reflections with clear psychoeducational principles.",
+          "Empowering users to define their own experiences without external diagnostic labels.",
         ],
       },
       architecture: {
         title: "System Architecture",
-        subtitle: "Multi-Tier Relational Application",
+        subtitle: "Secure, Component-Driven Full-Stack Application",
         content:
-          "Next.js App Router API routes communicating with PostgreSQL via Prisma ORM; document generation offloaded to dedicated worker microservices.",
+          "Built on modern Next.js and React architecture, Ingress Within emphasizes fast render speeds, fluid client-side navigation, and robust user data privacy. The application is organized around domain-driven feature modules (journaling, exercises, knowledge hub, user settings) backed by secure database persistence.",
         bullets: [
-          "Auth Gate: Iron-session / JWT validating deterministic permission scopes.",
-          "Data Layer: Normalized PostgreSQL schema with transactional rollbacks.",
-          "Document Service: PDFKit rendering official academic layouts dynamically.",
+          "Application Core: Next.js App Router with TypeScript and Tailwind CSS.",
+          "State & Forms: Controlled component architectures for complex multi-step guided audits.",
+          "Security: Secure session authentication, encrypted transmission, and strict user isolation.",
+          "Design Language: Soft watercolor wash textures, generous margins, and warm editorial typography.",
         ],
       },
       techStack: {
         title: "Technologies & Frameworks",
-        subtitle: "Enterprise-Grade Full Stack",
-        description: "Proven relational database tools and type-safe backend frameworks.",
+        subtitle: "Modern Web & Product Infrastructure",
+        description:
+          "Verified against the canonical Ingress-Within-Main repository structure and dependencies.",
         categories: [
-          { name: "Full Stack Web", items: ["Next.js", "TypeScript", "Node.js", "Tailwind CSS"] },
-          { name: "Database & ORM", items: ["PostgreSQL", "Prisma ORM", "Connection Pooling"] },
-          { name: "Document Generation", items: ["PDFKit", "Headless Chrome", "Vector SVGs"] },
+          {
+            name: "Frontend & UI",
+            items: ["Next.js", "React 18", "TypeScript", "Tailwind CSS", "Vite / Next Bundler"],
+          },
+          {
+            name: "Backend & Data",
+            items: ["Node.js", "PostgreSQL", "RESTful API Endpoints", "Vercel Serverless"],
+          },
+          {
+            name: "Product Design",
+            items: ["Watercolor Canvas Assets", "Accessible Contrast", "Responsive Breakpoints"],
+          },
         ],
       },
       results: {
         title: "Results & Learnings",
-        subtitle: "Streamlined Administrative Operations",
+        subtitle: "Live Product Validation & Ethical Boundaries",
         content:
-          "Eliminated administrative grade calculation discrepancies and cut end-of-term transcript compilation time from 3 weeks to 10 seconds.",
+          "Ingress Within is active on the web at ingresswithin.com, validating the demand for a compassionate, non-diagnostic digital space for personal growth. The project provided deep engineering lessons in privacy-first architecture and designing software for emotional vulnerability.",
         bullets: [
-          "Zero scheduling conflicts achieved via backtracking constraint engine.",
-          "Handled peak semester result publish traffic without server downtime.",
+          "Successfully deployed and accessible to users at ingresswithin.com.",
+          "Established clear ethical and technical boundaries distinguishing psychoeducation from medical therapy.",
+          "Demonstrated high user engagement through structured exercises like the Cost-Benefit and Avoidance Audits.",
+          "Strict Ethical Disclaimer: Ingress Within is designed for personal insight and emotional education; it does not diagnose medical conditions or substitute for professional psychiatric healthcare.",
         ],
       },
     },
