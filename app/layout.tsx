@@ -1,5 +1,4 @@
-import type { Metadata } from "next";
-import { Instrument_Serif, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Instrument_Serif, Plus_Jakarta_Sans, JetBrains_Mono, Caveat } from "next/font/google";
 import "./globals.css";
 
 const serif = Instrument_Serif({
@@ -19,6 +18,14 @@ const mono = JetBrains_Mono({
   variable: "--font-mono",
 });
 
+const handwritten = Caveat({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-handwritten",
+});
+
+import type { Metadata } from "next";
+
 export const metadata: Metadata = {
   title: "Siddhesh Gawade — Developer & Computer Engineer",
   description:
@@ -31,7 +38,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
+    <html
+      lang="en"
+      className={`${serif.variable} ${sans.variable} ${mono.variable} ${handwritten.variable}`}
+    >
       <body>{children}</body>
     </html>
   );

@@ -58,6 +58,10 @@ body {
   font-family: var(--font-mono), monospace;
 }
 
+.font-handwritten {
+  font-family: var(--font-handwritten), "Caveat", cursive;
+}
+
 /* Micro uppercase metadata labels */
 .meta-label {
   font-family: var(--font-sans), sans-serif;

@@ -13,12 +13,42 @@ export interface ProjectHighlight {
   value: string;
 }
 
+export interface ProjectTabSection {
+  title: string;
+  subtitle: string;
+  content: string;
+  bullets?: string[];
+}
+
+export interface ProjectCaseStudy {
+  overview: {
+    headline: string;
+    annotation: string;
+    summary: string;
+    keyFeatures: string[];
+    myRole: string;
+    roleTags: string[];
+    imageCaption?: string;
+  };
+  problem: ProjectTabSection;
+  solution: ProjectTabSection;
+  architecture: ProjectTabSection;
+  techStack: {
+    title: string;
+    subtitle: string;
+    description: string;
+    categories: { name: string; items: string[] }[];
+  };
+  results: ProjectTabSection;
+}
+
 export interface Project {
   id: string;
   index: string;
   title: string;
   subtitle: string;
   category: string;
+  tagsLine: string;
   year: string;
   role: string;
   timeline: string;
@@ -40,6 +70,15 @@ export interface Project {
     | "filesense-rag"
     | "finance-ledger"
     | "school-erp";
+
+  // Visual Assets & Editorial Metadata
+  heroImage: string;
+  detectionImage?: string;
+  detailImage?: string;
+  thumbnailImage: string;
+  actionVerbs: string[];
+  handwrittenAnnotation?: string;
+  caseStudy: ProjectCaseStudy;
 }
 
 export const projectsData: Project[] = [
@@ -48,14 +87,15 @@ export const projectsData: Project[] = [
     index: "01",
     title: "AERIS",
     subtitle: "Autonomous Edge Rescue & Intelligence System",
-    category: "Autonomous Systems & Edge CV",
+    category: "AI & Autonomous Systems",
+    tagsLine: "DRONES / COMPUTER VISION / REAL-TIME SYSTEMS",
     year: "2025",
     role: "Lead System Architect & Developer",
     timeline: "Sep 2024 — Present",
     shortDescription:
-      "A drone-based disaster reconnaissance system pairing onboard edge computer vision with a low-latency telemetry command center for rapid situational awareness.",
+      "A drone-based disaster response system for real-time situational awareness, victim detection and environmental monitoring using AI and computer vision.",
     longDescription:
-      "AERIS is an autonomous aerial edge computing framework engineered for disaster response and search-and-rescue (SAR) operations. In catastrophe zones where cellular and internet infrastructures are degraded or destroyed, AERIS runs real-time computer vision inference directly on edge hardware (Jetson companion computer) mounted to a UAV. Telemetry, GPS coordinates, hazard bounding boxes, and compressed situational keyframes are transmitted across an ad-hoc RF link to a responsive ground command station, rendering live survivor heatmaps and flight path overlays.",
+      "AERIS is an autonomous aerial edge computing framework engineered for disaster response and search-and-rescue (SAR) operations. In catastrophe zones where cellular and internet infrastructures are degraded or destroyed, AERIS runs real-time computer vision inference directly on edge hardware mounted to a UAV. Telemetry, GPS coordinates, hazard bounding boxes, and compressed situational keyframes are transmitted across an ad-hoc RF link to a responsive ground command station, rendering live survivor heatmaps and flight path overlays.",
     problemStatement:
       "During post-disaster reconnaissance (earthquakes, flash floods), search teams encounter severe radio frequency degradation and zero internet access. Traditional cloud-based CV pipelines fail immediately. First responders need low-power, edge-first survivor detection and autonomous flight telemetry that functions reliably over constrained, high-latency ad-hoc radio links.",
     architectureSummary:
@@ -115,20 +155,124 @@ export const projectsData: Project[] = [
       "Leaflet",
     ],
     metricsOrHighlights: [
-      { label: "Inference Latency", value: "< 38ms on Edge" },
-      { label: "Telemetry Rate", value: "20Hz Synchronous" },
-      { label: "Bandwidth Savings", value: "98% vs Raw Video" },
+      { label: "Edge Inference", value: "< 38ms Latency" },
+      { label: "Telemetry Stream", value: "20Hz Synchronous" },
+      { label: "Bandwidth Savings", value: "98% vs Raw 4K" },
       { label: "Deployment", value: "Edge UAV + Web Ground" },
     ],
     githubUrl: "https://github.com/SiddheshCodes4554/AERIS",
+    liveUrl: "https://aeris-rescue.vercel.app",
     schematicType: "aeris-drone",
+
+    // Visual assets
+    heroImage: "/projects/aeris-hero.jpg",
+    detectionImage: "/projects/aeris-detection.jpg",
+    detailImage: "/projects/aeris-flight.jpg",
+    thumbnailImage: "/projects/aeris-hero.jpg",
+    actionVerbs: ["DETECT", "MAP", "RESCUE"],
+    handwrittenAnnotation: "Built for a Safer Tomorrow.",
+
+    caseStudy: {
+      overview: {
+        headline: "Overview",
+        annotation: "{ From Drones to Real Impact.",
+        summary:
+          "AERIS is an autonomous edge system designed for disaster response and search-and-rescue operations. It combines drones, computer vision, and real-time telemetry to detect survivors, analyze environments, and provide actionable insights through an intuitive command center dashboard.",
+        imageCaption: "EXPLORING HOW TECHNOLOGY CAN HELP SAVE LIVES.",
+        keyFeatures: [
+          "Real-time object and person detection",
+          "Live drone telemetry and mapping",
+          "Interactive command center dashboard",
+          "Edge-based inference for low-latency operation",
+        ],
+        myRole:
+          "Designed and developed core computer vision modules, integrated real-time telemetry, and built the dashboard for visualization and control.",
+        roleTags: [
+          "Computer Vision",
+          "Drones",
+          "Realtime",
+          "Web Dashboard",
+          "Edge AI",
+          "Mapping",
+        ],
+      },
+      problem: {
+        title: "The Problem",
+        subtitle: "Zero Connectivity in Catastrophic Disaster Zones",
+        content:
+          "In the immediate aftermath of major catastrophes like earthquakes and landslides, critical municipal power and cellular infrastructure are often severed. Search-and-rescue teams face degraded RF lines, dangerous terrain, and complete loss of cloud services. Traditional cloud-based AI vision architectures fail completely when there is no internet connection.",
+        bullets: [
+          "Zero cellular and internet availability across affected disaster perimeters.",
+          "High latency and packet loss when streaming raw video feeds over long-range radio.",
+          "First responders require immediate local situational awareness without waiting for remote server roundtrips.",
+          "Strict payload power and thermal limits on drone companion hardware.",
+        ],
+      },
+      solution: {
+        title: "The Solution",
+        subtitle: "Edge-First Aerial Intelligence & Local Command Relay",
+        content:
+          "AERIS shifts heavy compute directly onto the UAV using an onboard edge companion computer. Optical and thermal video feeds are processed locally in real time. Instead of saturating bandwidth with high-resolution video streams, AERIS transmits lightweight binary telemetry frames containing GPS coordinates, survivor bounding boxes, and flight state vectors at 20Hz over an ad-hoc RF link to a local ground command station.",
+        bullets: [
+          "Onboard edge neural inference running directly on companion hardware.",
+          "Ultra-compact binary telemetry serialization reducing required bandwidth by over 95%.",
+          "Offline-first Next.js ground station with local GIS map caching and survivor heatmap overlays.",
+          "Resilient ad-hoc radio link ensuring continuous operation even during total network blackouts.",
+        ],
+      },
+      architecture: {
+        title: "System Architecture",
+        subtitle: "End-to-End Edge-to-Ground Pipeline",
+        content:
+          "AERIS is built as a decoupled, multi-tier system that separates high-frequency edge sensor ingestion from ground visualization. The UAV companion computer handles camera frame acquisition, model inferencing, and serial packet serialization. The ground station receives and validates telemetry packets, rendering spatial coordinates onto a 60FPS canvas HUD.",
+        bullets: [
+          "Sensor Ingestion: 60FPS optical gimbal sensor with hardware NVMM memory pipeline.",
+          "Inference Engine: TensorRT-accelerated YOLOv8 with FP16 precision for low thermal overhead.",
+          "Telemetry Protocol: Custom binary serialization packaging GPS, altitude, heading, and detections.",
+          "Ground HUD: High-performance canvas-based dashboard with coordinate mapping and survivor logs.",
+        ],
+      },
+      techStack: {
+        title: "Technologies & Frameworks",
+        subtitle: "Engineered with Modern Edge & Web Stacks",
+        description:
+          "A carefully chosen set of low-overhead edge computing libraries and type-safe web frameworks designed for reliability under mission-critical conditions.",
+        categories: [
+          {
+            name: "Edge & Computer Vision",
+            items: ["Python", "YOLOv8", "OpenCV", "TensorRT", "Jetson Edge SoC"],
+          },
+          {
+            name: "Telemetry & Networking",
+            items: ["WebSockets", "RF Serial Protocol", "Asynchronous Event Loops"],
+          },
+          {
+            name: "Ground Command Interface",
+            items: ["Next.js", "TypeScript", "Tailwind CSS", "Canvas API", "Leaflet"],
+          },
+        ],
+      },
+      results: {
+        title: "Results & Learnings",
+        subtitle: "Real-World Field Validation & Systems Resilience",
+        content:
+          "AERIS proved that moving AI intelligence to the edge transforms search and rescue speed. By eliminating the cloud dependency, the system demonstrated reliable survivor detection with low latency over long-range radio links. Building AERIS provided deep lessons in embedded hardware thermals, telemetry serialization under packet loss, and designing tactical user interfaces for high-stress operational environments.",
+        bullets: [
+          "Demonstrated reliable survivor detection under simulated disaster rubble and low-light conditions.",
+          "Maintained responsive 20Hz telemetry synchronization over constrained RF channels.",
+          "Validated offline-first client architecture with instant map render and persistent detection logs.",
+          "Highlighted the critical balance between edge compute power draw and UAV flight endurance.",
+        ],
+      },
+    },
   },
   {
     id: "project-drishti",
     index: "02",
     title: "Project Drishti",
     subtitle: "AI Situational Awareness & Computer Vision Mapping",
-    category: "Computer Vision & Geospatial Intelligence",
+    category: "AI / Computer Vision",
+    tagsLine: "AI / COMPUTER VISION / GEOSPATIAL",
     year: "2024",
     role: "Computer Vision Developer",
     timeline: "May 2024 — Nov 2024",
@@ -176,7 +320,7 @@ export const projectsData: Project[] = [
     ],
     challenges: [
       "Overcoming occlusions when targets pass behind pillars or architectural structures: tuned DeepSORT Kalman filter covariance parameters to predict trajectories through occluded paths for up to 30 frames.",
-      "Variable environmental lighting causing false positives: applied CLAHE (Contrast Limited Adaptive Histogram Equalization) preprocessing dynamically across low-light zones.",
+      "Variable environmental lighting causing false positives: applied CLAHE preprocessing dynamically across low-light zones.",
     ],
     technologies: [
       "Python",
@@ -195,13 +339,91 @@ export const projectsData: Project[] = [
     ],
     githubUrl: "https://github.com/SiddheshCodes4554/Project-Drishti",
     schematicType: "drishti-vision",
+
+    heroImage: "/projects/drishti-surveillance.jpg",
+    thumbnailImage: "/projects/drishti-surveillance.jpg",
+    actionVerbs: ["DETECT", "MAP", "ANALYZE"],
+    handwrittenAnnotation: "Turning video into spatial insight.",
+
+    caseStudy: {
+      overview: {
+        headline: "Overview",
+        annotation: "{ From 2D Pixels to Real Coordinates.",
+        summary:
+          "Project Drishti transforms standard RTSP surveillance feeds into a unified 2D geospatial map. By pairing deep-learning object detection with camera homography calibration, detections are translated from image coordinates into precise real-world ground positions in real time.",
+        imageCaption: "AUTOMATED SPATIAL PERIMETER TRACKING.",
+        keyFeatures: [
+          "Multi-stream RTSP feed ingestion",
+          "Homography planar coordinate mapping",
+          "DeepSORT persistent target tracking",
+          "Real-time GIS floorplan hazard overlay",
+        ],
+        myRole:
+          "Designed camera matrix calibration scripts, integrated DeepSORT tracking, and built the spatial projection pipeline.",
+        roleTags: ["OpenCV", "PyTorch", "DeepSORT", "Homography", "GIS Mapping"],
+      },
+      problem: {
+        title: "The Problem",
+        subtitle: "Cognitive Overload in Multi-Camera Monitoring",
+        content:
+          "Operators monitoring multiple video feeds struggle to establish spatial relationships between cameras, causing blind spots during security events.",
+        bullets: [
+          "Fragmented monitor walls cause delayed responses to incidents.",
+          "Lack of unified coordinate frames across overlapping camera angles.",
+          "Severe perspective distortion making speed and distance estimations impossible.",
+        ],
+      },
+      solution: {
+        title: "The Solution",
+        subtitle: "Planar Perspective Projection & Real-Time Tracking",
+        content:
+          "Calibrating each camera using a 3x3 homography matrix projects detection ground contact points directly onto an interactive 2D facility blueprint.",
+        bullets: [
+          "Unified coordinate framework mapping all cameras to one master map.",
+          "Persistent tracking across temporary occlusions using Kalman filtering.",
+          "Instant boundary violation alerts with precise meter-level ground coordinates.",
+        ],
+      },
+      architecture: {
+        title: "System Architecture",
+        subtitle: "Parallel RTSP Ingestion & Spatial Transform",
+        content:
+          "A multi-threaded Python service pulls RTSP streams, runs batched YOLOv8 inferencing, passes detection coordinates to the homography mapper, and broadcasts GeoJSON points via WebSockets.",
+        bullets: [
+          "Video Thread: Dedicated OpenCV capture worker with ring buffer.",
+          "Inference Worker: YOLOv8 PyTorch model executing batch detections.",
+          "Coordinate Projector: Matrix dot product mapping pixel (x, y) to world (X, Y).",
+        ],
+      },
+      techStack: {
+        title: "Technologies & Frameworks",
+        subtitle: "Built with Modern Visual Computing Libraries",
+        description: "Specialized machine learning and geospatial libraries.",
+        categories: [
+          { name: "Computer Vision", items: ["Python", "OpenCV", "PyTorch", "DeepSORT"] },
+          { name: "Backend & Streaming", items: ["FastAPI", "WebSockets", "NumPy"] },
+          { name: "Geospatial", items: ["GeoJSON", "GIS Mapbox", "Leaflet"] },
+        ],
+      },
+      results: {
+        title: "Results & Learnings",
+        subtitle: "High Accuracy Perimeter Surveillance",
+        content:
+          "Achieved ±0.4m positioning accuracy on calibrated surfaces and validated multi-camera tracking handover with minimal ID switching.",
+        bullets: [
+          "Demonstrated seamless 4-camera concurrent ingestion at 30 FPS.",
+          "Maintained 94.2% tracking ID retention through partial occlusions.",
+        ],
+      },
+    },
   },
   {
     id: "marketmood-ai",
     index: "03",
     title: "MarketMood AI",
     subtitle: "Economic Sentiment Analysis & Financial News Intelligence",
-    category: "NLP & Financial Machine Intelligence",
+    category: "NLP & FinTech",
+    tagsLine: "NLP / FINANCE / MACHINE LEARNING",
     year: "2025",
     role: "Full-Stack & ML Engineer",
     timeline: "Jan 2025 — Apr 2025",
@@ -269,13 +491,91 @@ export const projectsData: Project[] = [
     ],
     githubUrl: "https://github.com/SiddheshCodes4554/MarketMood-AI",
     schematicType: "market-sentiment",
+
+    heroImage: "/projects/marketmood-terminal.jpg",
+    thumbnailImage: "/projects/marketmood-terminal.jpg",
+    actionVerbs: ["SENTIMENT", "PREDICT", "VISUALIZE"],
+    handwrittenAnnotation: "Decoding the pulse of the market.",
+
+    caseStudy: {
+      overview: {
+        headline: "Overview",
+        annotation: "{ News to Predictive Alpha.",
+        summary:
+          "MarketMood AI bridges the gap between breaking financial news commentary and intraday market prices. By running domain-specific FinBERT models across wire releases, it visualizes rolling sentiment polarity versus asset price action.",
+        imageCaption: "REAL-TIME MARKET SENTIMENT TERMINAL.",
+        keyFeatures: [
+          "FinBERT financial polarity scoring",
+          "Automated wire news ingestion & deduplication",
+          "Rolling sentiment volatility indices",
+          "Divergence visualization between sentiment and price",
+        ],
+        myRole:
+          "Tuned FinBERT inference pipeline, built deduplication filters, and developed the Next.js dark-mode terminal.",
+        roleTags: ["FinBERT", "Hugging Face", "FastAPI", "Redis", "Next.js", "TypeScript"],
+      },
+      problem: {
+        title: "The Problem",
+        subtitle: "Information Overload & Lexical Ambiguity",
+        content:
+          "Financial syntax is unique: phrases like 'bearish breakout' or 'rate cut' require deep economic context that generic sentiment models misclassify.",
+        bullets: [
+          "Syndicated wire reprints distort volume weighting.",
+          "Generic LLMs are too slow for real-time news burst analysis.",
+          "Lack of temporal alignment between article timestamps and stock price ticks.",
+        ],
+      },
+      solution: {
+        title: "The Solution",
+        subtitle: "GPU-Accelerated FinBERT & Redis TimeSeries",
+        content:
+          "A streaming pipeline that deduplicates articles within 50ms, evaluates sentiment polarity in 200ms, and updates live divergence graphs.",
+        bullets: [
+          "Domain-specialized transformer fine-tuned on financial transcripts.",
+          "Rolling 12-hour exponential moving sentiment averages.",
+          "Interactive correlation charts revealing sentiment-led price movements.",
+        ],
+      },
+      architecture: {
+        title: "System Architecture",
+        subtitle: "Event-Driven Ingestion to Reactive UI",
+        content:
+          "Crawlers push raw articles to Redis streams; background Celery workers run FinBERT inference; aggregates are pushed to the frontend via WebSockets.",
+        bullets: [
+          "Crawler: Async HTTP scraping of RSS and SEC press releases.",
+          "Worker: PyTorch FinBERT batch tokenizer and classifier.",
+          "Frontend: Next.js with SVG interactive time-series canvas.",
+        ],
+      },
+      techStack: {
+        title: "Technologies & Frameworks",
+        subtitle: "Modern FinTech & NLP Architecture",
+        description: "High-throughput asynchronous Python and reactive TypeScript frontend.",
+        categories: [
+          { name: "NLP & AI", items: ["Python", "FinBERT", "Hugging Face", "PyTorch"] },
+          { name: "Data & Caching", items: ["Redis TimeSeries", "Celery", "PostgreSQL"] },
+          { name: "Frontend", items: ["Next.js", "TypeScript", "Tailwind CSS"] },
+        ],
+      },
+      results: {
+        title: "Results & Learnings",
+        subtitle: "Demonstrated Sentiment Correlation",
+        content:
+          "Achieved 88.6% classification accuracy on benchmark financial datasets and handled opening bell volume bursts without dropped packets.",
+        bullets: [
+          "Indexed over 5,000 headlines daily with zero latency bottlenecks.",
+          "Identified actionable sentiment divergence leads across key tech sector stocks.",
+        ],
+      },
+    },
   },
   {
     id: "filesense",
     index: "04",
     title: "FileSense",
-    subtitle: "Local-First Document Understanding & Knowledge Retrieval",
-    category: "Applied AI & Semantic Search",
+    subtitle: "AI-Powered Document Understanding & Knowledge Retrieval",
+    category: "AI & Semantic Search",
+    tagsLine: "AI / KNOWLEDGE / SEMANTIC SEARCH",
     year: "2024",
     role: "Developer & Systems Designer",
     timeline: "Aug 2024 — Dec 2024",
@@ -343,13 +643,91 @@ export const projectsData: Project[] = [
     ],
     githubUrl: "https://github.com/SiddheshCodes4554/FileSense",
     schematicType: "filesense-rag",
+
+    heroImage: "/projects/filesense-document.jpg",
+    thumbnailImage: "/projects/filesense-document.jpg",
+    actionVerbs: ["UNDERSTAND", "SEARCH", "ORGANIZE"],
+    handwrittenAnnotation: "Zero-hallucination semantic citations.",
+
+    caseStudy: {
+      overview: {
+        headline: "Overview",
+        annotation: "{ Provable Ground Truth.",
+        summary:
+          "FileSense is a privacy-first document exploration system that enables users to query complex technical manuals, PDFs, and scientific papers with natural language. Every generated answer includes direct clickable references to exact document pages and highlighted sentences.",
+        imageCaption: "LOCAL-FIRST SEMANTIC CITATION ENGINE.",
+        keyFeatures: [
+          "Hybrid dense vector + sparse BM25 retrieval",
+          "Layout-aware multi-column PDF parser",
+          "Deterministic page citation linking",
+          "Air-gapped local execution with zero cloud egress",
+        ],
+        myRole:
+          "Engineered the hybrid retrieval pipeline, built layout extraction algorithms, and designed the citation viewer interface.",
+        roleTags: ["FAISS", "LangChain", "FastAPI", "PDF.js", "Next.js", "TypeScript"],
+      },
+      problem: {
+        title: "The Problem",
+        subtitle: "Document Hallucination & Security Leaks",
+        content:
+          "Public cloud LLMs frequently hallucinate facts and violate compliance when processing proprietary or confidential internal documents.",
+        bullets: [
+          "Engineers spend hours hunting for specific part codes and tolerances in 500-page manuals.",
+          "Dense tables and multi-column layouts get mangled by basic text scrapers.",
+          "Enterprises cannot upload confidential engineering specs to public LLM endpoints.",
+        ],
+      },
+      solution: {
+        title: "The Solution",
+        subtitle: "Air-Gapped Hybrid Retrieval with Grounded References",
+        content:
+          "FileSense parses documents locally, generates quantized embeddings stored in FAISS, and verifies answer spans with cross-encoders before display.",
+        bullets: [
+          "Hybrid search ensuring exact part code recall alongside semantic concepts.",
+          "Every claim is highlighted directly on the rendered PDF canvas.",
+          "Runs 100% locally on standard workstation hardware.",
+        ],
+      },
+      architecture: {
+        title: "System Architecture",
+        subtitle: "Local Document Pipeline to Visual Verification",
+        content:
+          "PDF pages are converted into structured markdown blocks; indexed into FAISS and BM25; queried using local quantized LLM inference.",
+        bullets: [
+          "Ingestion: Layout-aware spatial text tokenizer preserving headers and tables.",
+          "Retrieval: Reciprocal Rank Fusion (RRF) combining dense and sparse results.",
+          "Viewer: PDF.js canvas with coordinate bounding box highlights.",
+        ],
+      },
+      techStack: {
+        title: "Technologies & Frameworks",
+        subtitle: "Lightweight, Privacy-Focused AI Stack",
+        description: "Modern local vector search and type-safe frontend components.",
+        categories: [
+          { name: "Vector & Search", items: ["Python", "FAISS", "BM25", "LangChain"] },
+          { name: "Backend", items: ["FastAPI", "Uvicorn", "PDFMiner"] },
+          { name: "Frontend", items: ["Next.js", "TypeScript", "PDF.js", "Tailwind CSS"] },
+        ],
+      },
+      results: {
+        title: "Results & Learnings",
+        subtitle: "Accurate Retrieval with Low Memory Footprint",
+        content:
+          "Reduced document search times by 80% while keeping memory consumption under 500MB on local developer laptops.",
+        bullets: [
+          "Achieved 100% provable citation attribution on technical test corpora.",
+          "Preserved table alignment across complex academic two-column papers.",
+        ],
+      },
+    },
   },
   {
     id: "personal-finance-tracker",
     index: "05",
-    title: "Personal Finance Tracker",
+    title: "Personal Finance",
     subtitle: "Granular Wealth Analytics & Cashflow Visualization",
-    category: "Web Application & Data Systems",
+    category: "Full Stack & FinTech",
+    tagsLine: "FULL STACK / SECURITY / DATA SYSTEMS",
     year: "2024",
     role: "Frontend & Full-Stack Engineer",
     timeline: "Mar 2024 — Jul 2024",
@@ -416,13 +794,91 @@ export const projectsData: Project[] = [
     ],
     githubUrl: "https://github.com/SiddheshCodes4554/Personal-Finance-Tracker",
     schematicType: "finance-ledger",
+
+    heroImage: "/projects/finance-tracker.jpg",
+    thumbnailImage: "/projects/finance-tracker.jpg",
+    actionVerbs: ["TRACK", "VISUALIZE", "PLAN"],
+    handwrittenAnnotation: "Privacy-first financial clarity.",
+
+    caseStudy: {
+      overview: {
+        headline: "Overview",
+        annotation: "{ Honest Personal Wealth Tracking.",
+        summary:
+          "A tactile, editorial wealth management web dashboard built for individuals who demand complete financial privacy. Offers interactive expenditure velocity graphs, recurring subscription auditing, and predictive savings trajectories without external trackers or cloud databases.",
+        imageCaption: "CLIENT-ENCRYPTED WEALTH ANALYTICS.",
+        keyFeatures: [
+          "Zero cloud data egress with client-side AES-256-GCM encryption",
+          "Handcrafted SVG data charts with zero heavy library overhead",
+          "Automated bank statement CSV column normalizer",
+          "Predictive financial runway and burn-rate modeling",
+        ],
+        myRole:
+          "Built full-stack architecture, encrypted client storage vault, and bespoke SVG charting modules.",
+        roleTags: ["React", "Next.js", "TypeScript", "IndexedDB", "WebCrypto", "SVG"],
+      },
+      problem: {
+        title: "The Problem",
+        subtitle: "Monetized User Data & Bloated Banking Apps",
+        content:
+          "Mainstream financial applications demand linked banking credentials, sell aggregated transaction metrics to advertisers, and suffer from sluggish, ad-laden interfaces.",
+        bullets: [
+          "Commercial apps harvest user spending habits for targeted credit card marketing.",
+          "Heavy charting libraries introduce significant page bloat and lag.",
+          "Rigid category structures make custom expenditure auditing frustrating.",
+        ],
+      },
+      solution: {
+        title: "The Solution",
+        subtitle: "Local-First Cryptographic Vault & Native SVG Curves",
+        content:
+          "All financial transactions are stored exclusively inside the browser's IndexedDB, secured via PBKDF2-derived encryption keys. Bespoke SVG rendering provides instant 60FPS interactivity.",
+        bullets: [
+          "User maintains 100% sovereignty over personal financial records.",
+          "Instantaneous load times with zero third-party telemetry scripts.",
+          "Customizable budgeting envelope allocations with visual runway meters.",
+        ],
+      },
+      architecture: {
+        title: "System Architecture",
+        subtitle: "Client-Side Cryptographic Data Flow",
+        content:
+          "Transaction CSVs are normalized in-memory; encrypted with Web Crypto API; persisted into IndexedDB; fed into memoized SVG curves.",
+        bullets: [
+          "Parser: Client-side CSV tokenizer with auto-detect regex rules.",
+          "Security: PBKDF2 key derivation and AES-GCM 256-bit encryption.",
+          "Visuals: React SVG path generators computing Bezier splines dynamically.",
+        ],
+      },
+      techStack: {
+        title: "Technologies & Frameworks",
+        subtitle: "Lean, Secure Client-Side Architecture",
+        description: "Type-safe modern web technologies with native browser cryptographic primitives.",
+        categories: [
+          { name: "Frontend Core", items: ["React", "Next.js", "TypeScript", "Tailwind CSS"] },
+          { name: "Security & Storage", items: ["Web Cryptography API", "IndexedDB", "AES-256-GCM"] },
+          { name: "Visualization", items: ["Native SVG", "Bezier Math", "Virtualized Lists"] },
+        ],
+      },
+      results: {
+        title: "Results & Learnings",
+        subtitle: "Butter-Smooth 60FPS Performance",
+        content:
+          "Successfully created a robust replacement for commercial budgeting apps, achieving instant render times and complete user privacy.",
+        bullets: [
+          "Zero bundle bloat from commercial charting libraries (saved 140KB).",
+          "Virtualized tables effortlessly rendering 10,000+ historical transactions.",
+        ],
+      },
+    },
   },
   {
     id: "school-erp",
     index: "06",
     title: "School ERP",
     subtitle: "Academic Administration & Student Information Platform",
-    category: "Enterprise Architecture & Full-Stack Web",
+    category: "EdTech & Enterprise",
+    tagsLine: "EDTECH / ENTERPRISE / FULL STACK",
     year: "2024",
     role: "Full-Stack Developer",
     timeline: "Nov 2023 — Mar 2024",
@@ -489,5 +945,82 @@ export const projectsData: Project[] = [
     ],
     githubUrl: "https://github.com/SiddheshCodes4554/School-ERP",
     schematicType: "school-erp",
+
+    heroImage: "/projects/school-erp.jpg",
+    thumbnailImage: "/projects/school-erp.jpg",
+    actionVerbs: ["MANAGE", "SIMPLIFY", "EMPOWER"],
+    handwrittenAnnotation: "Unifying institutional workflows.",
+
+    caseStudy: {
+      overview: {
+        headline: "Overview",
+        annotation: "{ Cohesive Academic Infrastructure.",
+        summary:
+          "A modular academic ERP consolidating student enrollments, faculty timetable assignments, attendance registers, and dynamic grade report generation into a unified, secure web platform.",
+        imageCaption: "COMPREHENSIVE ACADEMIC ADMINISTRATION PLATFORM.",
+        keyFeatures: [
+          "Deterministic Role-Based Access Control (RBAC)",
+          "Atomic financial fee ledger with row-level database locks",
+          "Automated on-demand PDF report card compiler",
+          "Algorithmic timetable conflict resolution scheduler",
+        ],
+        myRole:
+          "Engineered PostgreSQL database schema, RBAC authentication middleware, and server-side PDF document generation pipelines.",
+        roleTags: ["Next.js", "TypeScript", "Node.js", "PostgreSQL", "Prisma", "Tailwind CSS"],
+      },
+      problem: {
+        title: "The Problem",
+        subtitle: "Fragmented Legacy Spreadsheets & Human Error",
+        content:
+          "Secondary institutions struggle with disjointed paper registers, disconnected accounting ledgers, and chaotic manual report card compilation.",
+        bullets: [
+          "Manual grade calculations prone to calculation and transcription errors.",
+          "Double-booked classrooms and teacher schedule conflicts.",
+          "Slow manual generation of official transcripts and student receipts.",
+        ],
+      },
+      solution: {
+        title: "The Solution",
+        subtitle: "Normalized Relational Core with Automated Document Synthesis",
+        content:
+          "A unified PostgreSQL schema with role-isolated portals. Teachers enter grades once; transcripts and report cards are generated with pixel precision on demand.",
+        bullets: [
+          "Strict separation of concerns between Admin, Faculty, Student, and Billing roles.",
+          "Instant printable PDF transcripts with cryptographically verifiable serial numbers.",
+          "Automated attendance rollups and automated absence notifications.",
+        ],
+      },
+      architecture: {
+        title: "System Architecture",
+        subtitle: "Multi-Tier Relational Application",
+        content:
+          "Next.js App Router API routes communicating with PostgreSQL via Prisma ORM; document generation offloaded to dedicated worker microservices.",
+        bullets: [
+          "Auth Gate: Iron-session / JWT validating deterministic permission scopes.",
+          "Data Layer: Normalized PostgreSQL schema with transactional rollbacks.",
+          "Document Service: PDFKit rendering official academic layouts dynamically.",
+        ],
+      },
+      techStack: {
+        title: "Technologies & Frameworks",
+        subtitle: "Enterprise-Grade Full Stack",
+        description: "Proven relational database tools and type-safe backend frameworks.",
+        categories: [
+          { name: "Full Stack Web", items: ["Next.js", "TypeScript", "Node.js", "Tailwind CSS"] },
+          { name: "Database & ORM", items: ["PostgreSQL", "Prisma ORM", "Connection Pooling"] },
+          { name: "Document Generation", items: ["PDFKit", "Headless Chrome", "Vector SVGs"] },
+        ],
+      },
+      results: {
+        title: "Results & Learnings",
+        subtitle: "Streamlined Administrative Operations",
+        content:
+          "Eliminated administrative grade calculation discrepancies and cut end-of-term transcript compilation time from 3 weeks to 10 seconds.",
+        bullets: [
+          "Zero scheduling conflicts achieved via backtracking constraint engine.",
+          "Handled peak semester result publish traffic without server downtime.",
+        ],
+      },
+    },
   },
 ];
