@@ -455,36 +455,6 @@ body {
   margin-right: 0.2em;
 }
 
-/* Section Divider / Archive Teaser Anchor */
-.archive-preview-cue {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1px solid var(--hairline);
-  padding-top: 1.25rem;
-  margin-top: 2rem;
-  width: 100%;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.cue-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--ink);
-  text-decoration: none;
-  font-weight: 500;
-  transition: transform 0.2s var(--ease-editorial);
-}
-
-.cue-link:hover {
-  transform: translateY(2px);
-}
-
 /* ============================================================
    CINEMATIC INTRO SEQUENCE STYLING & HERO TARGETS
    ============================================================ */

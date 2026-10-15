@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { HeroIllustration } from "../components/hero-illustration";
@@ -17,9 +17,8 @@ const navItems = [
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
-  const [replayKey, setReplayKey] = useState<number>(0);
 
-  // Triggered during Scene 04 of the intro sequence as the paper curtain lifts
+  // Triggered during Frame 06 of the intro sequence as the paper curtain lifts
   const handleRevealHero = () => {
     if (!heroRef.current) return;
 
@@ -50,23 +49,10 @@ export default function Home() {
     );
   };
 
-  const handleReplayIntro = () => {
-    try {
-      sessionStorage.removeItem("sg_intro_sequence_completed_v2");
-    } catch {
-      // ignore safely
-    }
-    setReplayKey((prev) => prev + 1);
-  };
-
   return (
     <div className="portfolio-shell" ref={heroRef}>
       {/* ==================== CINEMATIC INTRO OVERLAY ==================== */}
-      <IntroSequence
-        key={replayKey}
-        forceReplay={replayKey > 0}
-        onIntroRevealHero={handleRevealHero}
-      />
+      <IntroSequence onIntroRevealHero={handleRevealHero} />
 
       <main className="hero-section" id="top" aria-label="Siddhesh Gawade Portfolio Hero">
         {/* ==================== 1. TOP EDITORIAL BAR ==================== */}
@@ -90,17 +76,7 @@ export default function Home() {
             SIDDHESH©
           </a>
 
-          <div className="top-bar-right flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={handleReplayIntro}
-              className="hidden md:inline-flex items-center gap-1 font-mono text-[0.58rem] uppercase tracking-wider text-[var(--muted)] hover:text-[var(--ink)] py-1 px-2.5 rounded-full border border-[var(--hairline)] hover:border-[var(--ink)] transition-colors cursor-pointer"
-              title="Replay cinematic intro animation"
-            >
-              <span>Replay Intro</span>
-              <span className="text-[0.68rem] leading-none">↻</span>
-            </button>
-
+          <div className="top-bar-right">
             <p className="folio-volume">
               Folio
               <br />
@@ -174,28 +150,10 @@ export default function Home() {
         </section>
 
         {/* ==================== 5. BOTTOM EDITORIAL CAPTION ==================== */}
-        <footer className="bottom-editorial-caption hero-animate-target">
+        <footer className="bottom-editorial-caption hero-animate-target" id="works">
           <p className="editorial-tagline">
             <em>just</em> a curious engineer crafting software with care.
           </p>
-
-          {/* Subtle Milestone Teaser / Section Anchor */}
-          <div className="archive-preview-cue" id="works">
-            <div className="flex items-center gap-3">
-              <span>Milestone 01 &amp; 02 Active</span>
-              <button
-                type="button"
-                onClick={handleReplayIntro}
-                className="md:hidden inline-flex items-center gap-1 font-mono text-[0.55rem] uppercase tracking-wider text-[var(--muted)] hover:text-[var(--ink)] py-0.5 px-2 rounded-full border border-[var(--hairline)]"
-              >
-                Replay Intro ↻
-              </button>
-            </div>
-            <a href="#top" className="cue-link" aria-label="Scroll back to top">
-              Top ↑
-            </a>
-            <span>Works Archive · Milestone 03</span>
-          </div>
         </footer>
       </main>
     </div>
