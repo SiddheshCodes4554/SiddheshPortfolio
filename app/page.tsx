@@ -52,7 +52,7 @@ export default function Home() {
 
   const handleReplayIntro = () => {
     try {
-      sessionStorage.removeItem("sg_intro_sequence_completed_v1");
+      sessionStorage.removeItem("sg_intro_sequence_completed_v2");
     } catch {
       // ignore safely
     }
