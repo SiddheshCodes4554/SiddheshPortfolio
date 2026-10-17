@@ -593,17 +593,83 @@ body {
   }
 }
 
+/* ============================================================
+   FALLING CHARACTER ANIMATION & INTRO ISOLATION
+   ============================================================ */
+.falling-rig {
+  transform-origin: 320px 365px;
+  will-change: transform;
+}
+
+.hero-floor-shadow {
+  transform-origin: 320px 365px;
+  will-change: transform, opacity;
+}
+
+/* While intro is active on initial load: CSS-level guarantees against any flash or jumble */
+.intro-active .hero-animate-target {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.intro-active .falling-rig {
+  transform: translateY(-1200px);
+}
+
+.intro-active .hero-floor-shadow {
+  transform: scaleX(0.2);
+  opacity: 0.04;
+}
+
+.intro-prelude-bar {
+  position: absolute;
+  top: var(--space-gutter);
+  left: var(--space-gutter);
+  right: var(--space-gutter);
+  z-index: 40;
+}
+
+.cat-tail-wiggle {
+  animation: tail-wag 0.4s ease-in-out infinite alternate;
+  transform-origin: 130px 358px;
+}
+
+@keyframes tail-wag {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(14deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
 
-  .intro-overlay {
+  .intro-active .hero-animate-target {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+
+  .intro-active .falling-rig {
+    transform: none !important;
+  }
+
+  .intro-active .hero-floor-shadow {
+    transform: none !important;
+    opacity: 0.08 !important;
+  }
+
+  .intro-prelude-bar {
     display: none !important;
   }
 
   .hero-animate-target {
     opacity: 1 !important;
+    visibility: visible !important;
     transform: none !important;
   }
 
@@ -615,3 +681,4 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+

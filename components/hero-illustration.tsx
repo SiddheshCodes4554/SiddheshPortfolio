@@ -2,9 +2,43 @@
 
 import { useState } from "react";
 
-export function HeroIllustration() {
-  const [lampLit, setLampLit] = useState(true);
-  const [catHappy, setCatHappy] = useState(false);
+interface HeroIllustrationProps {
+  lampLit?: boolean;
+  onLampToggle?: () => void;
+  catHappy?: boolean;
+  onCatToggle?: () => void;
+}
+
+export function HeroIllustration({
+  lampLit: controlledLampLit,
+  onLampToggle,
+  catHappy: controlledCatHappy,
+  onCatToggle,
+}: HeroIllustrationProps = {}) {
+  const [internalLampLit, setInternalLampLit] = useState(true);
+  const [internalCatHappy, setInternalCatHappy] = useState(false);
+
+  const isControlledLamp = controlledLampLit !== undefined;
+  const isControlledCat = controlledCatHappy !== undefined;
+
+  const lampLit = isControlledLamp ? controlledLampLit : internalLampLit;
+  const catHappy = isControlledCat ? controlledCatHappy : internalCatHappy;
+
+  const handleToggleLamp = () => {
+    if (onLampToggle) {
+      onLampToggle();
+    } else {
+      setInternalLampLit((prev) => !prev);
+    }
+  };
+
+  const handleToggleCat = () => {
+    if (onCatToggle) {
+      onCatToggle();
+    } else {
+      setInternalCatHappy((prev) => !prev);
+    }
+  };
 
   return (
     <div
@@ -26,7 +60,7 @@ export function HeroIllustration() {
       >
         <defs>
           <radialGradient id="lampGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="var(--ink)" stopOpacity="0.08" />
+            <stop offset="0%" stopColor="var(--ink)" stopOpacity="0.09" />
             <stop offset="100%" stopColor="var(--ink)" stopOpacity="0" />
           </radialGradient>
         </defs>
@@ -45,14 +79,14 @@ export function HeroIllustration() {
         {/* ===================== FLOATING IDEA / LIGHTBULB ===================== */}
         <g
           className="interactive-bulb"
-          onClick={() => setLampLit((prev) => !prev)}
+          onClick={handleToggleLamp}
           tabIndex={0}
           role="button"
           aria-label="Toggle idea lightbulb"
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
-              setLampLit((prev) => !prev);
+              handleToggleLamp();
             }
           }}
         >
@@ -114,20 +148,11 @@ export function HeroIllustration() {
         <circle cx="414" cy="148" r="2.5" fill="var(--ink)" />
         <circle cx="406" cy="162" r="1.75" fill="var(--ink)" />
 
-        {/* ===================== THE LOUNGE SOFA / DAYBED ===================== */}
-        <g className="sofa-group">
-          {/* Soft shadow under bench */}
-          <ellipse
-            cx="320"
-            cy="365"
-            rx="210"
-            ry="7"
-            fill="var(--ink)"
-            opacity="0.08"
-          />
-
+        {/* ===================== GROUND FLOOR (STATIC) ===================== */}
+        <g className="hero-ground-layer">
           {/* Grounding fine baseline */}
           <line
+            className="hero-floor-baseline"
             x1="120"
             y1="365"
             x2="520"
@@ -136,6 +161,24 @@ export function HeroIllustration() {
             strokeWidth="1"
             strokeDasharray="4 6"
           />
+
+          {/* Dynamic contact shadow under bench */}
+          <ellipse
+            className="hero-floor-shadow"
+            cx="320"
+            cy="365"
+            rx="210"
+            ry="7"
+            fill="var(--ink)"
+            opacity="0.08"
+            style={{ transformOrigin: "320px 365px" }}
+          />
+        </g>
+
+        {/* ===================== THE FALLING RIG (SOFA + DEV + CAT) ===================== */}
+        <g className="falling-rig" style={{ transformOrigin: "320px 365px" }}>
+          {/* ===================== THE LOUNGE SOFA / DAYBED ===================== */}
+          <g className="sofa-group">
 
           {/* Sofa wooden/metal legs */}
           <line
@@ -384,12 +427,16 @@ export function HeroIllustration() {
         {/* ===================== THE COMPANION CAT ===================== */}
         <g
           className="cat-companion"
-          onMouseEnter={() => setCatHappy(true)}
-          onMouseLeave={() => setCatHappy(false)}
+          onMouseEnter={() => {
+            if (!isControlledCat) setInternalCatHappy(true);
+          }}
+          onMouseLeave={() => {
+            if (!isControlledCat) setInternalCatHappy(false);
+          }}
           tabIndex={0}
           role="button"
           aria-label="Pet the companion cat"
-          onClick={() => setCatHappy((prev) => !prev)}
+          onClick={handleToggleCat}
         >
           {/* Subtle cat shadow */}
           <ellipse
@@ -472,6 +519,7 @@ export function HeroIllustration() {
               </text>
             </g>
           )}
+        </g>
         </g>
 
         {/* Small editorial coordinates & marks */}
